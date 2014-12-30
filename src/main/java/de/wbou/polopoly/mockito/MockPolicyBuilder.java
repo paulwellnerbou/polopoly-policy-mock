@@ -103,9 +103,7 @@ public class MockPolicyBuilder {
 	}
 
 	private String getChildPolicyValueModelPath(Policy childPolicy) {
-		if(childPolicy instanceof SingleValuePolicy) {
-			return "value";
-		} else if(childPolicy instanceof SelectPolicy) {
+		if(childPolicy instanceof SelectPolicy) {
 			return "selected_0";
 		}
 		return "value";
