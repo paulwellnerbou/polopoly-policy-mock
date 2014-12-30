@@ -5,7 +5,7 @@ Utilities to mock Atex' Polopoly's Policy classes using the data model objects t
 
 # Building this project
 
-You will need the polopoly api jar from Atex' public maven repositories, so you have to put your credentials for this repository in your <code>~/.gradle/gradle.properties</code>:
+You will need the polopoly jar from Atex' public maven repositories, so you have to put your credentials for this repository in your <code>~/.gradle/gradle.properties</code>:
 
     polopolyRepoUser=<YOUR POLOPOLY SUPPORT USER>
     polopolyRepoPassword=<YOUR POLOPOLY SUPPORT PASSWORD>
@@ -31,10 +31,10 @@ and <code>getContent</code> will be mocked as well.
 on your own and give it to the builder later.
 
     Content content = mock(Content.class);
-    when(content.getContentList("contentListName")).thenReturn(myContentList);
+    when(content.getContentList("contentListName")).thenReturn(myContentList); // Just an example, you can add content lists using .withContentList(...) easier.
     YourArticlePolicy articlePolicy = (YourArticlePolicy) new MockPolicyBuilder(YourArticlePolicy.class, policyCMServer).withMajor(1).withContent(content).build();
 
-This content mock will be also used to mock the calls to <code>getContentId()</code> and <code>getName()</code>.
+This content mock is also used internally to mock the calls to <code>getContentId()</code> and <code>getName()</code>.
 
 ## Mocking child policy values
 

@@ -1,15 +1,23 @@
 package de.wbou.polopoly.mockito;
 
+import com.polopoly.cm.ContentId;
 import com.polopoly.cm.VersionedContentId;
+import com.polopoly.cm.app.policy.SelectPolicy;
 import com.polopoly.cm.app.policy.SingleValuePolicy;
 import com.polopoly.cm.client.CMException;
 import com.polopoly.cm.client.Content;
 import com.polopoly.cm.client.InputTemplate;
+import com.polopoly.cm.collections.ContentList;
+import com.polopoly.cm.collections.ContentListSimple;
+import com.polopoly.cm.collections.ContentListUtil;
 import com.polopoly.cm.policy.Policy;
 import com.polopoly.cm.policy.PolicyCMServer;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.mockito.Mockito.doReturn;
@@ -35,6 +43,7 @@ public class MockPolicyBuilder {
 	private int minor = MockPolicyBuilder.minorCounter++;
 	private String policyName = "TestPolicy#" + minor;
 	private Map<String, Policy> childPolicies = new LinkedHashMap<>();
+	private Map<String, ContentList> contentLists = new LinkedHashMap<>();
 
 	public MockPolicyBuilder(final Class<? extends Policy> policyClass, final PolicyCMServer mockedPolicyCmServer) {
 		this(new InstanceFromClassCreator(policyClass), mockedPolicyCmServer);
@@ -52,6 +61,13 @@ public class MockPolicyBuilder {
 
 	public MockPolicyBuilder withContent(final Content mockedContent) {
 		this.content = mockedContent;
+		return this;
+	}
+
+	public MockPolicyBuilder withContentList(final String modelPath, final ContentId... contentListContents) {
+		final List<ContentId> contentIds = Arrays.asList(contentListContents);
+		final ContentListSimple contentListSimple = new ContentListSimple(contentIds, modelPath);
+		contentLists.put(modelPath, ContentListUtil.unmodifiableContentList(contentListSimple));
 		return this;
 	}
 
@@ -77,20 +93,29 @@ public class MockPolicyBuilder {
 
 	public MockPolicyBuilder withSingleValuedChildPolicyValue(final String childPolicyName, final String childPolicyValue, final InstanceCreator childPolicyInstanceCreator) {
 		final Content childPolicyContent = mock(Content.class);
+		final Policy childPolicy = new MockPolicyBuilder(childPolicyInstanceCreator, policyCmServer).withMajor(CHILD_POLICY_MAJOR).withContent(childPolicyContent).withName(childPolicyName).build();
 		try {
-			when(childPolicyContent.getComponent(childPolicyName, "selected_0")).thenReturn(childPolicyValue);
+			when(childPolicyContent.getComponent(childPolicyName, getChildPolicyValueModelPath(childPolicy))).thenReturn(childPolicyValue);
 		} catch (CMException e) {
 			throw new RuntimeException(e);
 		}
-		final Policy childPolicy = new MockPolicyBuilder(childPolicyInstanceCreator, policyCmServer).withMajor(CHILD_POLICY_MAJOR).withContent(childPolicyContent).withName(childPolicyName).build();
 		return withChildPolicy(childPolicyName, childPolicy);
 	}
 
-	public MockPolicyBuilder withSingleValuedChildPolicyValue(final String childPolicyName, final String childPolicyValue) {
-		return withSingleValuedChildPolicyValue(childPolicyName, childPolicyValue, SingleValuePolicy.class);
+	private String getChildPolicyValueModelPath(Policy childPolicy) {
+		if(childPolicy instanceof SingleValuePolicy) {
+			return "value";
+		} else if(childPolicy instanceof SelectPolicy) {
+			return "selected_0";
+		}
+		return "value";
 	}
 
-	public MockPolicyBuilder withSingleValuedChildPolicyValue(final String childPolicyName, final String childPolicyValue, final Class childPolicyClass) {
+	public MockPolicyBuilder withSingleValuedChildPolicyValue(final String childPolicyName, final String childPolicyValue) {
+		return withChildPolicyValue(childPolicyName, childPolicyValue, SingleValuePolicy.class);
+	}
+
+	public MockPolicyBuilder withChildPolicyValue(final String childPolicyName, final String childPolicyValue, final Class childPolicyClass) {
 		return withSingleValuedChildPolicyValue(childPolicyName, childPolicyValue, new InstanceFromClassCreator(childPolicyClass));
 	}
 
@@ -109,6 +134,9 @@ public class MockPolicyBuilder {
 		try {
 			for (Map.Entry<String, Policy> entry : childPolicies.entrySet()) {
 				doReturn(entry.getValue()).when(policy).getChildPolicy(entry.getKey());
+			}
+			for (Map.Entry<String, ContentList> entry : contentLists.entrySet()) {
+				when(content.getContentList(entry.getKey())).thenReturn(entry.getValue());
 			}
 			persistInMockedCmServer(policy, content);
 		} catch (CMException e) {
