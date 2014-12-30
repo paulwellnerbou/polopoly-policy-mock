@@ -54,7 +54,7 @@ If the policy you want to mock does not have a public default constructor you ca
 
     YourArticlePolicy articlePolicy = (YourArticlePolicy) new MockPolicyBuilder(new InstanceCreator<YourArticlePolicy>() {
             @Override
-            public YourArticlePolicy instantiate() throws IllegalAccessException, InstantiationException {
+            public YourArticlePolicy instantiate() {
                 return new YourArticlePolicy(parameterYouNeedForInstantiation);
             }
         }, policyCMServer).build();
