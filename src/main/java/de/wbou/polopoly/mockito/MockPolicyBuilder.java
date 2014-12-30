@@ -31,7 +31,7 @@ public class MockPolicyBuilder {
 	private PolicyCMServer policyCmServer = mock(PolicyCMServer.class);
 	private int major = 1;
 
-	private InputTemplate inputTemplate;
+	private InputTemplate inputTemplate = mock(InputTemplate.class);
 	private int minor = MockPolicyBuilder.minorCounter++;
 	private String policyName = "TestPolicy#" + minor;
 	private Map<String, Policy> childPolicies = new LinkedHashMap<>();
@@ -70,6 +70,11 @@ public class MockPolicyBuilder {
 		return this;
 	}
 
+	public MockPolicyBuilder withInputTemplate(final InputTemplate inputTemplate) {
+		this.inputTemplate = inputTemplate;
+		return this;
+	}
+
 	public MockPolicyBuilder withSingleValuedChildPolicyValue(final String childPolicyName, final String childPolicyValue, final InstanceCreator childPolicyInstanceCreator) {
 		final Content childPolicyContent = mock(Content.class);
 		try {
@@ -99,8 +104,6 @@ public class MockPolicyBuilder {
 		when(content.getSecurityParentId()).thenReturn(parentContentId);
 
 		Policy policy = spy(instanceCreator.instantiate());
-
-		inputTemplate = mock(InputTemplate.class);
 		initPolicy(policy, content, policyCmServer, inputTemplate);
 
 		try {
