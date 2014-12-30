@@ -33,8 +33,8 @@ public class MockPolicyBuilder {
 
 	private InputTemplate inputTemplate;
 	private int minor = MockPolicyBuilder.minorCounter++;
-	private String policyName = "TestPolicy#"+minor;
-	private Map<String, Policy> childPolicies = new LinkedHashMap<String, Policy>();
+	private String policyName = "TestPolicy#" + minor;
+	private Map<String, Policy> childPolicies = new LinkedHashMap<>();
 
 	public MockPolicyBuilder(final Class<? extends Policy> policyClass, final PolicyCMServer mockedPolicyCmServer) {
 		this(new InstanceFromClassCreator(policyClass), mockedPolicyCmServer);
@@ -65,32 +65,36 @@ public class MockPolicyBuilder {
 		return this;
 	}
 
-	public MockPolicyBuilder withChildPolicy(final String childPolicyName, final Policy childPolicy) throws IllegalAccessException, CMException, InstantiationException {
+	public MockPolicyBuilder withChildPolicy(final String childPolicyName, final Policy childPolicy) {
 		childPolicies.put(childPolicyName, childPolicy);
 		return this;
 	}
 
-	public MockPolicyBuilder withSingleValuedChildPolicyValue(final String childPolicyName, final String childPolicyValue, final InstanceCreator childPolicyInstanceCreator) throws IllegalAccessException, CMException, InstantiationException {
+	public MockPolicyBuilder withSingleValuedChildPolicyValue(final String childPolicyName, final String childPolicyValue, final InstanceCreator childPolicyInstanceCreator) {
 		final Content childPolicyContent = mock(Content.class);
-		when(childPolicyContent.getComponent(childPolicyName, "selected_0")).thenReturn(childPolicyValue);
+		try {
+			when(childPolicyContent.getComponent(childPolicyName, "selected_0")).thenReturn(childPolicyValue);
+		} catch (CMException e) {
+			throw new RuntimeException(e);
+		}
 		final Policy childPolicy = new MockPolicyBuilder(childPolicyInstanceCreator, policyCmServer).withMajor(CHILD_POLICY_MAJOR).withContent(childPolicyContent).withName(childPolicyName).build();
 		return withChildPolicy(childPolicyName, childPolicy);
 	}
 
-	public MockPolicyBuilder withSingleValuedChildPolicyValue(final String childPolicyName, final String childPolicyValue) throws IllegalAccessException, InstantiationException, CMException {
+	public MockPolicyBuilder withSingleValuedChildPolicyValue(final String childPolicyName, final String childPolicyValue) {
 		return withSingleValuedChildPolicyValue(childPolicyName, childPolicyValue, SingleValuePolicy.class);
 	}
 
-	public MockPolicyBuilder withSingleValuedChildPolicyValue(final String childPolicyName, final String childPolicyValue, final Class childPolicyClass) throws IllegalAccessException, InstantiationException, CMException {
+	public MockPolicyBuilder withSingleValuedChildPolicyValue(final String childPolicyName, final String childPolicyValue, final Class childPolicyClass) {
 		return withSingleValuedChildPolicyValue(childPolicyName, childPolicyValue, new InstanceFromClassCreator(childPolicyClass));
 	}
 
-	public Policy build() throws IllegalAccessException, InstantiationException, CMException {
+	public Policy build() {
 		final VersionedContentId versionedContentId = new VersionedContentId(major, minor, new BigDecimal(System.currentTimeMillis() / 1000).intValueExact());
 		return build(versionedContentId);
 	}
 
-	public Policy build(VersionedContentId versionedContentId) throws IllegalAccessException, InstantiationException, CMException {
+	public Policy build(VersionedContentId versionedContentId) {
 		when(content.getContentId()).thenReturn(versionedContentId);
 		when(content.getSecurityParentId()).thenReturn(parentContentId);
 
@@ -99,10 +103,14 @@ public class MockPolicyBuilder {
 		inputTemplate = mock(InputTemplate.class);
 		initPolicy(policy, content, policyCmServer, inputTemplate);
 
-		for (Map.Entry<String, Policy> entry : childPolicies.entrySet()) {
-			doReturn(entry.getValue()).when(policy).getChildPolicy(entry.getKey());
+		try {
+			for (Map.Entry<String, Policy> entry : childPolicies.entrySet()) {
+				doReturn(entry.getValue()).when(policy).getChildPolicy(entry.getKey());
+			}
+			persistInMockedCmServer(policy, content);
+		} catch (CMException e) {
+			throw new RuntimeException(e);
 		}
-		persistInMockedCmServer(policy, content);
 
 		return policy;
 	}

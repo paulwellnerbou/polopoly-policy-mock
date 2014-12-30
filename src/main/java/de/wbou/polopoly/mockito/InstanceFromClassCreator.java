@@ -15,7 +15,11 @@ public class InstanceFromClassCreator implements InstanceCreator {
 
 
 	@Override
-	public com.polopoly.cm.policy.Policy instantiate() throws IllegalAccessException, InstantiationException {
-		return policyClass.newInstance();
+	public Policy instantiate() {
+		try {
+			return policyClass.newInstance();
+		} catch (InstantiationException | IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }
