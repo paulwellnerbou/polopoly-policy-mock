@@ -3,7 +3,7 @@ polopoly-policy-mock
 
 Utilities to mock Atex' Polopoly's Policy classes using the data model objects the policy classes rely on. Basically it relies on the concepts and code examples explained on [http://support.polopoly.com/doc/jar/10.6.1/dev-guide/testing.html].
 
-# Building this project
+## Building this project
 
 You will need the polopoly jar from Atex' public maven repositories, so you have to put your credentials for this repository in your <code>~/.gradle/gradle.properties</code>:
 
@@ -12,9 +12,16 @@ You will need the polopoly jar from Atex' public maven repositories, so you have
 
 After that, you can run <code>./gradlew build</code> to build the project.
 
-# Basic usage
+## Deploying artifact in your own maven repository (nexus, for example)
 
-## Mocking a policy with a default constructor
+The build.gradle uses gradle's publishing plugin ([http://www.gradle.org/docs/current/userguide/publishing_maven.html]). You will have to give the url
+and credentials for your repository.
+
+    ./gradlew publish -Prepo="http://nexus.example.com:8081/nexus/content/repositories/repo-name" -PpublishUser=user -PpublishPassword=password
+
+## Basic usage
+
+### Mocking a policy with a default constructor
 
 The simplest way to created a mocked policy is, for example:
 
@@ -25,7 +32,7 @@ All methods as <code>articlePolicy.getContentId()</code> will work. The <code>Po
 automatically to return the policy if you call <code>policyCmServer.getPolicy()</code> with the corresponding versioned id or content id. <code>contentExists</code>
 and <code>getContent</code> will be mocked as well.
 
-## Mocking content of the model behind the policy
+### Mocking content of the model behind the policy
 
 <code>MockPolicyBuilder</code> is creating a new mocked <code>Content</code> to initialize the policy. If you want to configure this content mock to add data, you can create it
 on your own and give it to the builder later.
@@ -36,7 +43,7 @@ on your own and give it to the builder later.
 
 This content mock is also used internally to mock the calls to <code>getContentId()</code> and <code>getName()</code>.
 
-## Mocking child policy values
+### Mocking child policy values
 
 <code>MockPolicyBuilder</code> uses partial mocking based on Mockito's <code>spy()</code> to mock the child policies. It would be possible to mock the complete
 Polopoly behaviour with child policies as well, but that requires knowledge of classes and implementation of code not marked as <code>@PublicApi</code>, which I try
@@ -48,7 +55,7 @@ Assuming the input template of the model of the policy, we are working with, has
         .withSingleValuedChildPolicyValue("articleType", "type1", SelectPolicy.class)
         .build();
 
-## Policies without public default constructor
+### Policies without public default constructor
 
 If the policy you want to mock does not have a public default constructor you can use the InstanceCreator interface.
 

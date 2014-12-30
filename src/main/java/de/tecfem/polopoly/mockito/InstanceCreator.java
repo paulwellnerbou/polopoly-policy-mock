@@ -1,4 +1,4 @@
-package de.wbou.polopoly.mockito;
+package de.tecfem.polopoly.mockito;
 
 import com.polopoly.cm.policy.Policy;
 

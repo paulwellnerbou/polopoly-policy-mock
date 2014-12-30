@@ -1,5 +1,6 @@
 apply plugin: 'java'
 apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 group = "de.tecfem"
 version = "0.1-SNAPSHOT"
@@ -22,6 +23,35 @@ repositories {
             password polopolyRepoPassword
         }
         url "http://maven.polopoly.com/nexus/content/groups/polopoly-public/"
+    }
+}
+
+if (!project.hasProperty("publishUser")) {
+    ext.publishUser = ""
+    ext.publishPassword = ""
+}
+
+if (!project.hasProperty("repo")) {
+    ext.repo = "$buildDir/repo"
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+publishing {
+    repositories {
+        maven {
+            credentials {
+                username "$publishUser"
+                password "$publishPassword"
+            }
+            // change to point to your repo, e.g. http://my.org/repo
+            url "$repo"
+        }
     }
 }
 
