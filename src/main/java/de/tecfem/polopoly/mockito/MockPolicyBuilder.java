@@ -14,7 +14,9 @@ import com.polopoly.cm.policy.Policy;
 import com.polopoly.cm.policy.PolicyCMServer;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +45,17 @@ public class MockPolicyBuilder {
 	private String policyName = "TestPolicy#" + minor;
 	private Map<String, Policy> childPolicies = new LinkedHashMap<>();
 	private Map<String, ContentList> contentLists = new LinkedHashMap<>();
+	private Map<ComponentIdentifier, String> components = new HashMap<>();
+
+	private class ComponentIdentifier {
+		String componentGroupName;
+		String componentName;
+
+		public ComponentIdentifier(final String componentGroupName, final String componentName) {
+			this.componentGroupName = componentGroupName;
+			this.componentName = componentName;
+		}
+	}
 
 	public MockPolicyBuilder(final Class<? extends Policy> policyClass, final PolicyCMServer mockedPolicyCmServer) {
 		this(new InstanceFromClassCreator(policyClass), mockedPolicyCmServer);
@@ -101,6 +114,11 @@ public class MockPolicyBuilder {
 		return withChildPolicy(childPolicyName, childPolicy);
 	}
 
+	public MockPolicyBuilder withComponent(final String componentGroupName, final String componentName, final String componentValue) {
+		components.put(new ComponentIdentifier(componentGroupName, componentName), componentValue);
+		return this;
+	}
+
 	private String getChildPolicyValueModelPath(Policy childPolicy) {
 		if(childPolicy instanceof SelectPolicy) {
 			return "selected_0";
@@ -134,6 +152,9 @@ public class MockPolicyBuilder {
 			}
 			for (Map.Entry<String, ContentList> entry : contentLists.entrySet()) {
 				when(content.getContentList(entry.getKey())).thenReturn(entry.getValue());
+			}
+			for (Map.Entry<ComponentIdentifier, String> entry: components.entrySet()) {
+				when(content.getComponent(entry.getKey().componentGroupName, entry.getKey().componentName)).thenReturn(entry.getValue());
 			}
 			persistInMockedCmServer(policy, content);
 		} catch (CMException e) {
