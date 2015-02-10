@@ -3,6 +3,7 @@ package de.tecfem.polopoly.mockito;
 import com.polopoly.cm.ContentId;
 import com.polopoly.cm.VersionedContentId;
 import com.polopoly.cm.app.policy.SelectPolicy;
+import com.polopoly.cm.app.policy.SelectableSubFieldPolicy;
 import com.polopoly.cm.app.policy.SingleValuePolicy;
 import com.polopoly.cm.client.CMException;
 import com.polopoly.cm.client.Content;
@@ -122,6 +123,8 @@ public class MockPolicyBuilder {
 	private String getChildPolicyValueModelPath(Policy childPolicy) {
 		if(childPolicy instanceof SelectPolicy) {
 			return "selected_0";
+		} else if (childPolicy instanceof SelectableSubFieldPolicy) {
+			return "subField";
 		}
 		return "value";
 	}
