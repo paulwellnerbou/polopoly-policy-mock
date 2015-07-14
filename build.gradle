@@ -64,7 +64,7 @@ configure(allprojects) {
 }
 
 dependencies {
-    provided("com.polopoly:polopoly:10.6.1-fp11-c871a5b:api")
-    provided("com.polopoly:polopoly:10.6.1-fp11-c871a5b")
+    provided("com.polopoly:polopoly:10.14.0:api")
+    provided("com.polopoly:polopoly:10.14.0")
     provided("org.mockito:mockito-all:1.10.17")
 }
