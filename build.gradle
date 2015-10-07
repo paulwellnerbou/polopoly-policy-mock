@@ -11,8 +11,12 @@ buildscript {
         maven { url 'http://repo.spring.io/plugins-release' }
     }
     dependencies {
-        classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.6'
+        classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
     }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.7'
 }
 
 repositories {
