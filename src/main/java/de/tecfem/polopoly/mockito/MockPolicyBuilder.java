@@ -28,7 +28,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 /**
- * @author Paul Wellner Bou <pwb@faz.net>
+ * @author Paul Wellner Bou <paul@wellnerbou.de>
  */
 public class MockPolicyBuilder {
 

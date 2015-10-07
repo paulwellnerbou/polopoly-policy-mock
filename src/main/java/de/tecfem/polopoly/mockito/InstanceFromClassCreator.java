@@ -3,7 +3,7 @@ package de.tecfem.polopoly.mockito;
 import com.polopoly.cm.policy.Policy;
 
 /**
- * @author Paul Wellner Bou <pwb@faz.net>
+ * @author Paul Wellner Bou <paul@wellnerbou.de>
  */
 public class InstanceFromClassCreator implements InstanceCreator {
 
