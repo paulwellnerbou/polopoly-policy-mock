@@ -1,4 +1,4 @@
-package de.tecfem.polopoly.mockito;
+package de.wellnerbou.polopoly.test;
 
 import com.polopoly.cm.ContentId;
 import com.polopoly.cm.VersionedContentId;
@@ -15,7 +15,6 @@ import com.polopoly.cm.policy.Policy;
 import com.polopoly.cm.policy.PolicyCMServer;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;

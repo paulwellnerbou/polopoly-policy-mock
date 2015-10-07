@@ -2,8 +2,8 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
-group = "de.tecfem"
-version = "0.2-SNAPSHOT"
+group = "de.wellnerbou"
+version = "polopoly10.6-0.2-SNAPSHOT"
 
 // See https://github.com/spring-projects/gradle-plugins/tree/master/propdeps-plugin
 buildscript {
