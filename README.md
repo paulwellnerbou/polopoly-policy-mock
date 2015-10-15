@@ -6,9 +6,11 @@ Basically it relies on the concepts and code examples explained on
 [Polopoly's Guide on Writing Tests](http://support.polopoly.com/doc/jar/10.6.1/dev-guide/testing.html) (You'll need
 a valid Polopoly Support Account.'), extends them and creates a fluent API for it.
 
+*Any issues? Need more features for your policies? [Create an issue](https://github.com/paulwellnerbou/polopoly-policy-mock/issues), or drop me a line.*
+
 ## Changelog
 
-# Release 0.3
+### Release 0.3
 
 * Add branches for Polopoly 10.6 and 10.14, so there are two artifacts available:
   * [ ![Download](https://api.bintray.com/packages/paulwellnerbou/maven/polopoly-policy-mock/images/download.svg?version=polopoly10.14-0.3) ](https://bintray.com/paulwellnerbou/maven/polopoly-policy-mock/polopoly10.6-0.3)
