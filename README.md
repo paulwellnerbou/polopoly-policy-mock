@@ -8,8 +8,8 @@ Utilities to mock Atex' Polopoly's Policy classes using the data model objects t
 # Release 0.3
 
 * Add branches for Polopoly 10.6 and 10.14, so there are two artifacts available:
-  * polopoly10.6-0.2
-  * polopoly10.14-0.2
+  * polopoly10.6-0.3
+  * polopoly10.14-0.3
 * Type MockPolicyBuilder with Generics, so casting is not necessary any more.
 * Add fluent API to MockPolicyBuilder to add slots
 * Add usage examples in MockPolicyBuilderTest
