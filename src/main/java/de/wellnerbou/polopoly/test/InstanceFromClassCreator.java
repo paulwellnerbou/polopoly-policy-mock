@@ -5,17 +5,16 @@ import com.polopoly.cm.policy.Policy;
 /**
  * @author Paul Wellner Bou <paul@wellnerbou.de>
  */
-public class InstanceFromClassCreator implements InstanceCreator {
+public class InstanceFromClassCreator<T extends Policy> implements InstanceCreator {
 
-	private final Class<? extends Policy> policyClass;
+	private final Class<T> policyClass;
 
-	public InstanceFromClassCreator(Class<? extends Policy> policyClass) {
+	public InstanceFromClassCreator(Class<T> policyClass) {
 		this.policyClass = policyClass;
 	}
 
-
 	@Override
-	public Policy instantiate() {
+	public T instantiate() {
 		try {
 			return policyClass.newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {
