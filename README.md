@@ -13,7 +13,7 @@ Utilities to mock Atex' Polopoly's Policy classes using the data model objects t
 * Type MockPolicyBuilder with Generics, so casting is not necessary any more.
 * Add fluent API to MockPolicyBuilder to add slots
 * Add usage examples in MockPolicyBuilderTest
-* This library is now available on [bintray]()
+* This library is now available on [bintray](https://bintray.com/paulwellnerbou/maven/polopoly-policy-mock)
 
 ## Basic usage
 
