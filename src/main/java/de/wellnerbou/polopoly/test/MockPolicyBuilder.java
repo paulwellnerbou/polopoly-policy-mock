@@ -224,6 +224,9 @@ public class MockPolicyBuilder<T extends Policy> {
 		if(content.getExternalId() != null) {
 			when(policyCmServer.getPolicy(content.getExternalId())).thenReturn(policy);
 			when(policyCmServer.getContent(content.getExternalId())).thenReturn(content);
+			final ExternalContentId externalContentIdWithoutVersion = new ExternalContentId(content.getExternalId().getExternalId());
+			when(policyCmServer.getPolicy(externalContentIdWithoutVersion)).thenReturn(policy);
+			when(policyCmServer.getContent(externalContentIdWithoutVersion)).thenReturn(content);
 		}
 	}
 
