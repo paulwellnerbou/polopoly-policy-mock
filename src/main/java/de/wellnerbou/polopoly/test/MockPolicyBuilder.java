@@ -15,6 +15,7 @@ import com.polopoly.cm.client.InputTemplate;
 import com.polopoly.cm.collections.ContentList;
 import com.polopoly.cm.collections.ContentListSimple;
 import com.polopoly.cm.collections.ContentListUtil;
+import com.polopoly.cm.policy.ContentPolicy;
 import com.polopoly.cm.policy.Policy;
 import com.polopoly.cm.policy.PolicyCMServer;
 import com.polopoly.siteengine.layout.slot.SlotPolicy;
@@ -220,6 +221,13 @@ public class MockPolicyBuilder<T extends Policy> {
 		when(policyCmServer.getPolicy(policy.getContentId().getContentId())).thenReturn(policy);
 		when(policyCmServer.getContent(policy.getContentId())).thenReturn(content);
 		when(policyCmServer.getContent(policy.getContentId().getContentId())).thenReturn(content);
+		if(content.getExternalId() != null) {
+			when(policyCmServer.getPolicy(content.getExternalId())).thenReturn(policy);
+			when(policyCmServer.getContent(content.getExternalId())).thenReturn(content);
+			final ExternalContentId externalContentIdWithoutVersion = new ExternalContentId(content.getExternalId().getExternalId());
+			when(policyCmServer.getPolicy(externalContentIdWithoutVersion)).thenReturn(policy);
+			when(policyCmServer.getContent(externalContentIdWithoutVersion)).thenReturn(content);
+		}
 	}
 
 	private void initPolicy(final Policy policy, final Content content, final PolicyCMServer policyCMServer, final InputTemplate inputTemplate) {
