@@ -3,6 +3,7 @@ package de.wellnerbou.polopoly.test;
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.polopoly.cm.ContentId;
+import com.polopoly.cm.ExternalContentId;
 import com.polopoly.cm.VersionedContentId;
 import com.polopoly.cm.app.policy.ContentListWrapperPolicy;
 import com.polopoly.cm.app.policy.SelectPolicy;
@@ -50,6 +51,7 @@ public class MockPolicyBuilder<T extends Policy> {
 	private Map<String, Policy> childPolicies = new LinkedHashMap<>();
 	private Map<String, ContentList> contentLists = new LinkedHashMap<>();
 	private Map<ComponentIdentifier, String> components = new HashMap<>();
+	private String externalContentIdString;
 
 	private class ComponentIdentifier {
 		String componentGroupName;
@@ -89,6 +91,11 @@ public class MockPolicyBuilder<T extends Policy> {
 
 	public MockPolicyBuilder<T> withMajor(int major) {
 		this.major = major;
+		return this;
+	}
+
+	public MockPolicyBuilder<T> withExternaContentlIdString(String externalContentIdString) {
+		this.externalContentIdString = externalContentIdString;
 		return this;
 	}
 
@@ -181,6 +188,10 @@ public class MockPolicyBuilder<T extends Policy> {
 		initPolicy(policy, content, policyCmServer, inputTemplate);
 
 		try {
+			if(externalContentIdString != null) {
+				final ExternalContentId externalContentId = new ExternalContentId(versionedContentId.getMajor(), versionedContentId.getMinor(), versionedContentId.getVersion(), externalContentIdString);
+				when(content.getExternalId()).thenReturn(externalContentId);
+			}
 			for (Map.Entry<String, Policy> entry : childPolicies.entrySet()) {
 				doReturn(entry.getValue()).when(policy).getChildPolicy(entry.getKey());
 			}
