@@ -3,6 +3,7 @@ package de.wellnerbou.polopoly.test;
 import com.polopoly.cm.client.CMException;
 import com.polopoly.cm.collections.ContentList;
 import com.polopoly.cm.policy.ArticlePolicy;
+import com.polopoly.cm.policy.ContentPolicy;
 import com.polopoly.cm.policy.PolicyCMServer;
 import com.polopoly.cm.policy.PolicyImplBase;
 import com.polopoly.siteengine.layout.slot.SlotPolicy;
@@ -29,6 +30,14 @@ public class MockPolicyBuilderTest {
 		final PolicyImplBase policyImplBase1 = new MockPolicyBuilder<>(PolicyImplBase.class, policyCMServer).withMajor(1).build();
 		final PolicyImplBase policyImplBase2 = new MockPolicyBuilder<>(PolicyImplBase.class, policyCMServer).withMajor(1).build();
 		assertThat(policyImplBase1.getContentId().getMinor() == policyImplBase2.getContentId().getMinor() - 1);
+	}
+
+	@Test
+	public void testWithExternalIdString() throws CMException {
+		final String externalId = "externalId";
+
+		final ContentPolicy contentPolicy = new MockPolicyBuilder<>(ContentPolicy.class, policyCMServer).withExternaContentlIdString(externalId).build();
+		assertThat(contentPolicy.getExternalId().getExternalId()).isEqualTo(externalId);
 	}
 
 	@Test
