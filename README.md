@@ -10,19 +10,18 @@ a valid Polopoly Support Account.'), extends them and creates a fluent API for i
 
 ## Changelog
 
-### Release 0.4
+### Release 0.5
 
 * Add branches for Polopoly 10.8 and 10.14, so there are two artifacts available:
-  * [ ![Download](https://api.bintray.com/packages/paulwellnerbou/maven/polopoly-policy-mock/images/download.svg?version=polopoly10.14-0.4) ](https://bintray.com/paulwellnerbou/maven/polopoly-policy-mock/polopoly10.14-0.4)
-  * [ ![Download](https://api.bintray.com/packages/paulwellnerbou/maven/polopoly-policy-mock/images/download.svg?version=polopoly10.8-0.4) ](https://bintray.com/paulwellnerbou/maven/polopoly-policy-mock/polopoly10.8-0.4)
+  * [ ![Download](https://api.bintray.com/packages/paulwellnerbou/maven/polopoly-policy-mock/images/download.svg?version=polopoly10.14-0.5) ](https://bintray.com/paulwellnerbou/maven/polopoly-policy-mock/polopoly10.14-0.5)
+  * [ ![Download](https://api.bintray.com/packages/paulwellnerbou/maven/polopoly-policy-mock/images/download.svg?version=polopoly10.8-0.5) ](https://bintray.com/paulwellnerbou/maven/polopoly-policy-mock/polopoly10.8-0.5)
 * Add `withExternalContentId(...)` to allow external ContentIDs for mocked policies
 * Added mocked behavior for `getAvailableContentListNames()` (thanks to Fabian Oehlmann)
 * Support for Polopoly 10.6 discontinued
 
 ### Release 0.3
 
-* Add branches for Polopoly 10.6 and 10.14, so there are two artifacts available:
-  * [ ![Download](https://api.bintray.com/packages/paulwellnerbou/maven/polopoly-policy-mock/images/download.svg?version=polopoly10.14-0.3) ](https://bintray.com/paulwellnerbou/maven/polopoly-policy-mock/polopoly10.6-0.3)
+* Add branches for Polopoly 10.6 and 10.14, so there are two artifacts available.
   * [ ![Download](https://api.bintray.com/packages/paulwellnerbou/maven/polopoly-policy-mock/images/download.svg?version=polopoly10.6-0.3) ](https://bintray.com/paulwellnerbou/maven/polopoly-policy-mock/polopoly10.6-0.3)
 * Type MockPolicyBuilder with Generics, so casting is not necessary any more.
 * Add fluent API to MockPolicyBuilder to add slots
