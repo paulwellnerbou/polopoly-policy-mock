@@ -17,7 +17,7 @@ apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
 group = "de.wellnerbou"
-version = "polopoly10.6-0.3"
+version = "polopoly10.8-0.4"
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.7'
@@ -109,7 +109,8 @@ configure(allprojects) {
 dependencies {
     testCompile 'org.assertj:assertj-core:2.2.0'
     compile 'com.google.guava:guava:18.0'
-    provided("com.polopoly:polopoly:10.6.1-fp11-c871a5b:api")
-    provided("com.polopoly:polopoly:10.6.1-fp11-c871a5b")
+    provided("com.polopoly:polopoly:10.8.1-fp10:api")
+    provided("com.polopoly:polopoly:10.8.1-fp10")
+    provided("com.polopoly:legacy-site-plugin:10.8.1-fp10")
     provided("org.mockito:mockito-all:1.10.17")
 }
