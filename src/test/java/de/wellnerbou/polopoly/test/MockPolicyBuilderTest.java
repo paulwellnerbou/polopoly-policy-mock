@@ -57,6 +57,35 @@ public class MockPolicyBuilderTest {
 		assertThat(articlePolicy.isConstructorParameterForTest()).isTrue();
 	}
 
+	@Test
+	public void testGetAvailableContentListNamesWithEmptyList() throws CMException {
+		final PolicyImplBase policyImplBase = new MockPolicyBuilder<>(PolicyImplBase.class, policyCMServer).build();
+
+		assertThat(policyImplBase.getAvailableContentListNames().length).isZero();
+	}
+
+	@Test
+	public void testGetAvailableContentListNamesWithSingleEntry() throws CMException {
+		String contentListName = "someContentList";
+		final PolicyImplBase policyImplBase = new MockPolicyBuilder<>(PolicyImplBase.class, policyCMServer)
+				.withContentList(contentListName)
+				.build();
+
+		assertThat(policyImplBase.getAvailableContentListNames()).contains(contentListName);
+	}
+
+	@Test
+	public void testGetAvailableContentListNamesWithMultipleEntries() throws CMException {
+		String defaultContentListName = "default";
+		String someContentListName = "someContentList";
+		final PolicyImplBase policyImplBase = new MockPolicyBuilder<>(PolicyImplBase.class, policyCMServer)
+				.withContentList(defaultContentListName)
+				.withContentList(someContentListName)
+				.build();
+
+		assertThat(policyImplBase.getAvailableContentListNames()).contains(defaultContentListName, someContentListName);
+	}
+
 	private class YourArticlePolicy extends PolicyImplBase {
 		private boolean constructorParameterForTest;
 
