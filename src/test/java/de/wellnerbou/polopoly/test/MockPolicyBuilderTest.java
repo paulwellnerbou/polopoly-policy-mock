@@ -1,4 +1,4 @@
-package de.Wellnerbou.polopoly.test;
+package de.wellnerbou.polopoly.test;
 
 import com.polopoly.cm.client.CMException;
 import com.polopoly.cm.collections.ContentList;
@@ -7,8 +7,6 @@ import com.polopoly.cm.policy.PolicyCMServer;
 import com.polopoly.cm.policy.PolicyImplBase;
 import com.polopoly.siteengine.layout.slot.SlotPolicy;
 import com.polopoly.siteengine.structure.PagePolicy;
-import de.wellnerbou.polopoly.test.InstanceCreator;
-import de.wellnerbou.polopoly.test.MockPolicyBuilder;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -57,6 +55,35 @@ public class MockPolicyBuilderTest {
 			}
 		}, policyCMServer).build();
 		assertThat(articlePolicy.isConstructorParameterForTest()).isTrue();
+	}
+
+	@Test
+	public void testGetAvailableContentListNamesWithEmptyList() throws CMException {
+		final PolicyImplBase policyImplBase = new MockPolicyBuilder<>(PolicyImplBase.class, policyCMServer).build();
+
+		assertThat(policyImplBase.getAvailableContentListNames().length).isZero();
+	}
+
+	@Test
+	public void testGetAvailableContentListNamesWithSingleEntry() throws CMException {
+		String contentListName = "someContentList";
+		final PolicyImplBase policyImplBase = new MockPolicyBuilder<>(PolicyImplBase.class, policyCMServer)
+				.withContentList(contentListName)
+				.build();
+
+		assertThat(policyImplBase.getAvailableContentListNames()).contains(contentListName);
+	}
+
+	@Test
+	public void testGetAvailableContentListNamesWithMultipleEntries() throws CMException {
+		String defaultContentListName = "default";
+		String someContentListName = "someContentList";
+		final PolicyImplBase policyImplBase = new MockPolicyBuilder<>(PolicyImplBase.class, policyCMServer)
+				.withContentList(defaultContentListName)
+				.withContentList(someContentListName)
+				.build();
+
+		assertThat(policyImplBase.getAvailableContentListNames()).contains(defaultContentListName, someContentListName);
 	}
 
 	private class YourArticlePolicy extends PolicyImplBase {

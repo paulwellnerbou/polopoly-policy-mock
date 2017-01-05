@@ -1,21 +1,46 @@
 polopoly-policy-mock
 ====================
 
-Utilities to mock Atex' Polopoly's Policy classes using the data model objects the policy classes rely on. Basically it relies on the concepts and code examples explained on [http://support.polopoly.com/doc/jar/10.6.1/dev-guide/testing.html].
+Utilities to mock Atex' Polopoly's Policy classes using the data model objects the policy classes rely on.
+Basically it relies on the concepts and code examples explained on
+[Polopoly's Guide on Writing Tests](http://support.polopoly.com/doc/jar/10.6.1/dev-guide/testing.html) (You'll need
+a valid Polopoly Support Account.'), extends them and creates a fluent API for it.
+
+*Any issues? Need more features for your policies? [Create an issue](https://github.com/paulwellnerbou/polopoly-policy-mock/issues), or drop me a line.*
 
 ## Changelog
 
-# Release 0.3
+### Release 0.3
 
 * Add branches for Polopoly 10.6 and 10.14, so there are two artifacts available:
-  * polopoly10.6-0.2
-  * polopoly10.14-0.2
+  * [ ![Download](https://api.bintray.com/packages/paulwellnerbou/maven/polopoly-policy-mock/images/download.svg?version=polopoly10.14-0.3) ](https://bintray.com/paulwellnerbou/maven/polopoly-policy-mock/polopoly10.6-0.3)
+  * [ ![Download](https://api.bintray.com/packages/paulwellnerbou/maven/polopoly-policy-mock/images/download.svg?version=polopoly10.6-0.3) ](https://bintray.com/paulwellnerbou/maven/polopoly-policy-mock/polopoly10.6-0.3)
 * Type MockPolicyBuilder with Generics, so casting is not necessary any more.
 * Add fluent API to MockPolicyBuilder to add slots
 * Add usage examples in MockPolicyBuilderTest
 * This library is now available on [bintray](https://bintray.com/paulwellnerbou/maven/polopoly-policy-mock)
 
 ## Basic usage
+
+## Gradle
+
+	repositories {
+		maven {
+			url  "http://dl.bintray.com/paulwellnerbou/maven"
+		}
+	}
+
+## Maven
+
+Add this to your repositories (or include it in your own nexus/artifactory):
+
+	<repositories>
+		<repository>
+			<id>bintray-paulwellnerbou-maven</id>
+			<name>bintray</name>
+			<url>http://dl.bintray.com/paulwellnerbou/maven</url>
+		</repository>
+	</repositories>
 
 ### Mocking a policy with a default constructor
 
@@ -73,7 +98,7 @@ After that, you can run <code>./gradlew build</code> to build the project.
 
 ## Deploying artifact in your own maven repository (nexus, for example)
 
-The build.gradle uses gradle's publishing plugin ([http://www.gradle.org/docs/current/userguide/publishing_maven.html]). You will have to give the url
+The build.gradle uses [Gradle's publishing plugin](http://www.gradle.org/docs/current/userguide/publishing_maven.html). You will have to give the url
 and credentials for your repository.
 
     ./gradlew publish -Prepo="http://nexus.example.com:8081/nexus/content/repositories/repo-name" -PpublishUser=user -PpublishPassword=password

@@ -190,6 +190,7 @@ public class MockPolicyBuilder<T extends Policy> {
 				}
 				when(content.getContentList(entry.getKey())).thenReturn(entry.getValue());
 			}
+			when(content.getAvailableContentListNames()).thenReturn(contentLists.keySet().toArray(new String[contentLists.keySet().size()]));
 			for (Map.Entry<ComponentIdentifier, String> entry : components.entrySet()) {
 				when(content.getComponent(entry.getKey().componentGroupName, entry.getKey().componentName)).thenReturn(entry.getValue());
 			}

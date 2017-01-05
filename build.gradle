@@ -17,7 +17,7 @@ apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
 group = "de.wellnerbou"
-version = "polopoly10.14-0.3"
+version = "polopoly10.14-0.4"
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.7'
