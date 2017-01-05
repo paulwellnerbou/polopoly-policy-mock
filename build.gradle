@@ -111,5 +111,6 @@ dependencies {
     compile 'com.google.guava:guava:18.0'
     provided("com.polopoly:polopoly:10.14.0:api")
     provided("com.polopoly:polopoly:10.14.0")
+    provided("com.polopoly:legacy-site-plugin:10.14.0")
     provided("org.mockito:mockito-all:1.10.17")
 }
