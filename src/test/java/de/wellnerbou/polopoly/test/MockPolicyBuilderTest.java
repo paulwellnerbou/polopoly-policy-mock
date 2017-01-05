@@ -1,4 +1,4 @@
-package de.Wellnerbou.polopoly.test;
+package de.wellnerbou.polopoly.test;
 
 import com.polopoly.cm.client.CMException;
 import com.polopoly.cm.collections.ContentList;
@@ -7,8 +7,6 @@ import com.polopoly.cm.policy.PolicyCMServer;
 import com.polopoly.cm.policy.PolicyImplBase;
 import com.polopoly.siteengine.layout.slot.SlotPolicy;
 import com.polopoly.siteengine.structure.PagePolicy;
-import de.wellnerbou.polopoly.test.InstanceCreator;
-import de.wellnerbou.polopoly.test.MockPolicyBuilder;
 import org.junit.Test;
 import org.mockito.Mockito;
 
