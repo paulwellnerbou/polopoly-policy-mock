@@ -36,7 +36,7 @@ public class MockPolicyBuilderTest {
 	public void testWithExternalIdString() throws CMException {
 		final String externalId = "externalId";
 
-		final ContentPolicy contentPolicy = new MockPolicyBuilder<>(ContentPolicy.class, policyCMServer).withExternaContentlIdString(externalId).build();
+		final ContentPolicy contentPolicy = new MockPolicyBuilder<>(ContentPolicy.class, policyCMServer).withExternalContentlIdString(externalId).build();
 		assertThat(contentPolicy.getExternalId().getExternalId()).isEqualTo(externalId);
 	}
 
@@ -93,6 +93,26 @@ public class MockPolicyBuilderTest {
 				.build();
 
 		assertThat(policyImplBase.getAvailableContentListNames()).contains(defaultContentListName, someContentListName);
+	}
+
+	@Test
+	public void testContentPolicyGetNameFromContent() throws CMException {
+		final ContentPolicy contentPolicy = new MockPolicyBuilder<>(ContentPolicy.class, policyCMServer)
+				.withComponent("polopoly.Content", "name", "Name")
+				.build();
+		final String name = contentPolicy.getName();
+
+		assertThat(name.equals("Name"));
+	}
+
+	@Test
+	public void testContentPolicyGetNameFromChildPolicy() throws CMException {
+		final ContentPolicy contentPolicy = new MockPolicyBuilder<>(ContentPolicy.class, policyCMServer)
+				.withNameChildPolicy("Name")
+				.build();
+		final String name = contentPolicy.getName();
+
+		assertThat(name.equals("Name"));
 	}
 
 	private class YourArticlePolicy extends PolicyImplBase {
