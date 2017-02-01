@@ -100,7 +100,7 @@ public class MockPolicyBuilder<T extends Policy> {
 		return this;
 	}
 
-	public MockPolicyBuilder<T> withExternalContentlIdString(String externalContentIdString) {
+	public MockPolicyBuilder<T> withExternalContentIdString(String externalContentIdString) {
 		this.externalContentIdString = externalContentIdString;
 		return this;
 	}

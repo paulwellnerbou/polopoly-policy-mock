@@ -36,7 +36,7 @@ public class MockPolicyBuilderTest {
 	public void testWithExternalIdString() throws CMException {
 		final String externalId = "externalId";
 
-		final ContentPolicy contentPolicy = new MockPolicyBuilder<>(ContentPolicy.class, policyCMServer).withExternalContentlIdString(externalId).build();
+		final ContentPolicy contentPolicy = new MockPolicyBuilder<>(ContentPolicy.class, policyCMServer).withExternalContentIdString(externalId).build();
 		assertThat(contentPolicy.getExternalId().getExternalId()).isEqualTo(externalId);
 	}
 
