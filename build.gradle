@@ -34,6 +34,9 @@ if (!project.hasProperty("publishKey")) {
 if (!project.hasProperty("publishPassword")) {
     ext.publishPassword = ""
 }
+if (!project.hasProperty("bintrayOrganisation")) {
+    ext.bintrayOrganisation = 'wellnerbou-polopoly'
+}
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
@@ -92,6 +95,7 @@ bintray {
     publish = true
 
     pkg {
+        userOrg = "$bintrayOrganisation"
         repo = 'maven'
         name = 'polopoly-policy-mock'
         licenses = ['MIT']
