@@ -1,5 +1,7 @@
 package de.wellnerbou.polopoly.test;
 
+import com.polopoly.cm.ContentId;
+import com.polopoly.cm.ContentIdFactory;
 import com.polopoly.cm.client.CMException;
 import com.polopoly.cm.collections.ContentList;
 import com.polopoly.cm.policy.ArticlePolicy;
@@ -36,7 +38,7 @@ public class MockPolicyBuilderTest {
 	public void testWithExternalIdString() throws CMException {
 		final String externalId = "externalId";
 
-		final ContentPolicy contentPolicy = new MockPolicyBuilder<>(ContentPolicy.class, policyCMServer).withExternaContentlIdString(externalId).build();
+		final ContentPolicy contentPolicy = new MockPolicyBuilder<>(ContentPolicy.class, policyCMServer).withExternalContentIdString(externalId).build();
 		assertThat(contentPolicy.getExternalId().getExternalId()).isEqualTo(externalId);
 	}
 
@@ -93,6 +95,39 @@ public class MockPolicyBuilderTest {
 				.build();
 
 		assertThat(policyImplBase.getAvailableContentListNames()).contains(defaultContentListName, someContentListName);
+	}
+
+	@Test
+	public void testGetContentListAndGetReference() throws CMException {
+		String contentListName = "myContentList";
+		final ContentId contentId = ContentIdFactory.createContentId("7.123");
+		final ContentPolicy policyImplBase = new MockPolicyBuilder<>(ContentPolicy.class, policyCMServer)
+				.withContentList(contentListName, contentId)
+				.build();
+
+		assertThat(policyImplBase.getContentList(contentListName).size()).isEqualTo(1);
+		assertThat(policyImplBase.getContentList(contentListName).getEntry(0).getReferredContentId()).isEqualTo(contentId);
+		assertThat(policyImplBase.getContentReference(contentListName, "0")).isEqualTo(contentId);
+	}
+
+	@Test
+	public void testContentPolicyGetNameFromContent() throws CMException {
+		final ContentPolicy contentPolicy = new MockPolicyBuilder<>(ContentPolicy.class, policyCMServer)
+				.withComponent("polopoly.Content", "name", "Name")
+				.build();
+		final String name = contentPolicy.getName();
+
+		assertThat(name.equals("Name"));
+	}
+
+	@Test
+	public void testContentPolicyGetNameFromChildPolicy() throws CMException {
+		final ContentPolicy contentPolicy = new MockPolicyBuilder<>(ContentPolicy.class, policyCMServer)
+				.withNameChildPolicy("Name")
+				.build();
+		final String name = contentPolicy.getName();
+
+		assertThat(name.equals("Name"));
 	}
 
 	private class YourArticlePolicy extends PolicyImplBase {

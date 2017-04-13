@@ -17,7 +17,7 @@ apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
 group = "de.wellnerbou"
-version = "polopoly10.14-0.5"
+version = "polopoly10.14-1.0"
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.7'
@@ -33,6 +33,9 @@ if (!project.hasProperty("publishKey")) {
 }
 if (!project.hasProperty("publishPassword")) {
     ext.publishPassword = ""
+}
+if (!project.hasProperty("bintrayOrganisation")) {
+    ext.bintrayOrganisation = 'wellnerbou-polopoly'
 }
 
 sourceCompatibility = 1.7
@@ -92,6 +95,7 @@ bintray {
     publish = true
 
     pkg {
+        userOrg = "$bintrayOrganisation"
         repo = 'maven'
         name = 'polopoly-policy-mock'
         licenses = ['MIT']
@@ -107,8 +111,8 @@ configure(allprojects) {
 }
 
 dependencies {
-    testCompile 'org.assertj:assertj-core:2.2.0'
-    compile 'com.google.guava:guava:18.0'
+    testCompile 'org.assertj:assertj-core:2.6.0'
+    compile 'com.google.guava:guava:19.0'
     provided("com.polopoly:polopoly:10.14.0:api")
     provided("com.polopoly:polopoly:10.14.0")
     provided("com.polopoly:legacy-site-plugin:10.14.0")

@@ -2,6 +2,7 @@ package de.wellnerbou.polopoly.test;
 
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Lists;
 import com.polopoly.cm.ContentId;
 import com.polopoly.cm.ExternalContentId;
 import com.polopoly.cm.VersionedContentId;
@@ -19,8 +20,11 @@ import com.polopoly.cm.policy.ContentPolicy;
 import com.polopoly.cm.policy.Policy;
 import com.polopoly.cm.policy.PolicyCMServer;
 import com.polopoly.siteengine.layout.slot.SlotPolicy;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -38,21 +42,25 @@ import static org.mockito.Mockito.when;
 public class MockPolicyBuilder<T extends Policy> {
 
 	public static final int CHILD_POLICY_MAJOR = 14;
+	public static final String POLICY_NAME_OF_NAME_CHILD_POLICY = "nameField";
+	public static final String P_TEXT_INPUT = "p.TextInput";
 	private static int minorCounter = 1;
 
 	private final InstanceCreator<T> instanceCreator;
 	private VersionedContentId parentContentId = new VersionedContentId(2, 999, 999);
-	private Content content = mock(Content.class);
+	private Content content = ContentFactory.createContentMock();
+
 	private PolicyCMServer policyCmServer = mock(PolicyCMServer.class);
 	private int major = 1;
 
-	private InputTemplate inputTemplate = mock(InputTemplate.class);
+	private String inputTemplateExternalId = "de.wellnerbou.defaultInputTemplateName";
 	private int minor = MockPolicyBuilder.minorCounter++;
 	private String policyName = "TestPolicy#" + minor;
 	private Map<String, Policy> childPolicies = new LinkedHashMap<>();
 	private Map<String, ContentList> contentLists = new LinkedHashMap<>();
 	private Map<ComponentIdentifier, String> components = new HashMap<>();
 	private String externalContentIdString;
+	private InputTemplate inputTemplateInstance;
 
 	private class ComponentIdentifier {
 		String componentGroupName;
@@ -95,12 +103,17 @@ public class MockPolicyBuilder<T extends Policy> {
 		return this;
 	}
 
-	public MockPolicyBuilder<T> withExternaContentlIdString(String externalContentIdString) {
+	public MockPolicyBuilder<T> withExternalContentIdString(String externalContentIdString) {
 		this.externalContentIdString = externalContentIdString;
 		return this;
 	}
 
-	public MockPolicyBuilder<T> withName(String name) {
+	/**
+	 * This is the internal name used to initialize the policy, not the name retrieved by {@link ContentPolicy#getName()} of {@link ContentPolicy}.
+	 * @param name
+	 * @return MockPolicyBuilder
+	 */
+	public MockPolicyBuilder<T> withInternalPolicyName(String name) {
 		this.policyName = name;
 		return this;
 	}
@@ -110,8 +123,13 @@ public class MockPolicyBuilder<T extends Policy> {
 		return this;
 	}
 
+	public MockPolicyBuilder<T> withInputTemplateExternalId(final String inputTemplateExternalId) {
+		this.inputTemplateExternalId = inputTemplateExternalId;
+		return this;
+	}
+
 	public MockPolicyBuilder<T> withInputTemplate(final InputTemplate inputTemplate) {
-		this.inputTemplate = inputTemplate;
+		this.inputTemplateInstance = inputTemplate;
 		return this;
 	}
 
@@ -144,14 +162,23 @@ public class MockPolicyBuilder<T extends Policy> {
 	}
 
 	public MockPolicyBuilder<T> withSingleValuedChildPolicyValue(final String childPolicyName, final String childPolicyValue, final InstanceCreator<? extends SingleValuePolicy> childPolicyInstanceCreator) {
-		final Content childPolicyContent = mock(Content.class);
-		final Policy childPolicy = new MockPolicyBuilder<>(childPolicyInstanceCreator, policyCmServer).withMajor(CHILD_POLICY_MAJOR).withContent(childPolicyContent).withName(childPolicyName).build();
+		return this.withSingleValuedChildPolicyValue(childPolicyName, childPolicyValue, P_TEXT_INPUT, childPolicyInstanceCreator);
+	}
+
+	public MockPolicyBuilder<T> withSingleValuedChildPolicyValue(final String childPolicyName, final String childPolicyValue, final String childPolicyInputTemplateExternalId, final InstanceCreator<? extends SingleValuePolicy> childPolicyInstanceCreator) {
+		final Content childPolicyContent = ContentFactory.createContentMock();
+		final InputTemplate inputTemplate = InputTemplateFactory.createInputTemplateMock(childPolicyName, childPolicyInputTemplateExternalId);
+		final Policy childPolicy = new MockPolicyBuilder<>(childPolicyInstanceCreator, policyCmServer).withMajor(CHILD_POLICY_MAJOR).withContent(childPolicyContent).withInputTemplate(inputTemplate).withInternalPolicyName(childPolicyName).build();
 		try {
 			when(childPolicyContent.getComponent(childPolicyName, getChildPolicyValueModelPath(childPolicy))).thenReturn(childPolicyValue);
 		} catch (CMException e) {
 			throw new RuntimeException(e);
 		}
 		return withChildPolicy(childPolicyName, childPolicy);
+	}
+
+	public MockPolicyBuilder<T> withNameChildPolicy(final String name) {
+		return this.withComponent("polopoly.Content", "name", name).withSingleValuedChildPolicyValue(POLICY_NAME_OF_NAME_CHILD_POLICY, name, "p.ContentName", new InstanceFromClassCreator<>(SingleValuePolicy.class));
 	}
 
 	public MockPolicyBuilder<T> withComponent(final String componentGroupName, final String componentName, final String componentValue) {
@@ -181,37 +208,82 @@ public class MockPolicyBuilder<T extends Policy> {
 		return build(versionedContentId);
 	}
 
+	public T build(int major, int minor) {
+		final VersionedContentId versionedContentId = new VersionedContentId(major, minor, new BigDecimal(System.currentTimeMillis() / 1000).intValueExact());
+		return build(versionedContentId);
+	}
+
 	public T build(VersionedContentId versionedContentId) {
 		when(content.getContentId()).thenReturn(versionedContentId);
 		when(content.getSecurityParentId()).thenReturn(parentContentId);
+		InputTemplate inputTemplate = getInputTemplate();
 
 		T policy = spy(instanceCreator.instantiate());
-		initPolicy(policy, content, policyCmServer, inputTemplate);
-
 		try {
+			when(content.getName()).thenReturn(this.policyName);
 			if(externalContentIdString != null) {
 				final ExternalContentId externalContentId = new ExternalContentId(versionedContentId.getMajor(), versionedContentId.getMinor(), versionedContentId.getVersion(), externalContentIdString);
 				when(content.getExternalId()).thenReturn(externalContentId);
-			}
-			for (Map.Entry<String, Policy> entry : childPolicies.entrySet()) {
-				doReturn(entry.getValue()).when(policy).getChildPolicy(entry.getKey());
 			}
 			for (Map.Entry<String, ContentList> entry : contentLists.entrySet()) {
 				if (entry.getKey().equals("default")) {
 					when(content.getContentList()).thenReturn(entry.getValue());
 				}
 				when(content.getContentList(entry.getKey())).thenReturn(entry.getValue());
+				for (int i = 0; i < entry.getValue().size(); i++) {
+					when(content.getContentReference(entry.getKey(), String.valueOf(i))).thenReturn(entry.getValue().getEntry(i).getReferredContentId());
+				}
 			}
 			when(content.getAvailableContentListNames()).thenReturn(contentLists.keySet().toArray(new String[contentLists.keySet().size()]));
-			for (Map.Entry<ComponentIdentifier, String> entry : components.entrySet()) {
-				when(content.getComponent(entry.getKey().componentGroupName, entry.getKey().componentName)).thenReturn(entry.getValue());
+			mockComponentNames(components, content);
+
+			when(content.getName()).thenAnswer(new Answer<String>() {
+				@Override
+				public String answer(final InvocationOnMock invocation) throws Throwable {
+					return ((Content) invocation.getMock()).getComponent("polopoly.Content", "name");
+				}
+			});
+
+			initPolicy(policy, content, policyCmServer, inputTemplate);
+			for (Map.Entry<String, Policy> entry : childPolicies.entrySet()) {
+				final Policy childPolicy = entry.getValue();
+				doReturn(childPolicy).when(policy).getChildPolicy(entry.getKey());
 			}
+			doReturn(Lists.newArrayList(childPolicies.keySet())).when(policy).getChildPolicyNames();
+
 			persistInMockedCmServer(policy, content);
 		} catch (CMException e) {
 			throw new RuntimeException(e);
 		}
-
 		return policy;
+	}
+
+	private InputTemplate getInputTemplate() {
+		if(this.inputTemplateInstance != null) {
+			return this.inputTemplateInstance;
+		} else {
+			return InputTemplateFactory.createInputTemplateMock(this.policyName, this.inputTemplateExternalId);
+		}
+	}
+
+	private void mockComponentNames(final Map<ComponentIdentifier, String> components, final Content content) throws CMException {
+		final ArrayList<String> componentGroupNames = new ArrayList<>();
+		for (Map.Entry<ComponentIdentifier, String> entry : components.entrySet()) {
+			componentGroupNames.add(entry.getValue());
+			when(content.getComponent(entry.getKey().componentGroupName, entry.getKey().componentName)).thenReturn(entry.getValue());
+			when(content.getComponentNames(entry.getKey().componentGroupName)).thenReturn(getAllComponentNamesForGroup(entry.getKey().componentGroupName, components));
+		}
+		when(content.getComponentGroupNames()).thenReturn(componentGroupNames.toArray(new String[componentGroupNames.size()]));
+	}
+
+	private String[] getAllComponentNamesForGroup(final String componentGroupName, final Map<ComponentIdentifier, String> components) {
+		final ArrayList<String> componentNames = new ArrayList<>();
+		for (Map.Entry<ComponentIdentifier, String> entry : components.entrySet()) {
+			if(entry.getKey().componentGroupName.equals(componentGroupName)) {
+				componentNames.add(entry.getKey().componentName);
+			}
+		}
+		return componentNames.toArray(new String[componentNames.size()]);
 	}
 
 	private void persistInMockedCmServer(Policy policy, Content content) throws CMException {
@@ -230,7 +302,11 @@ public class MockPolicyBuilder<T extends Policy> {
 		}
 	}
 
-	private void initPolicy(final Policy policy, final Content content, final PolicyCMServer policyCMServer, final InputTemplate inputTemplate) {
+	private void initPolicy(final Policy policy, final Content content, final PolicyCMServer policyCMServer, final InputTemplate inputTemplate) throws CMException {
+		// be sure to have an input template external ID
+		if (inputTemplate.getExternalId() == null) {
+			when(inputTemplate.getExternalId()).thenReturn(new ExternalContentId("de.wellnerbou.defaultInputTemplateName"));
+		}
 		policy.init(policyName, new Content[] { content }, inputTemplate, null, policyCMServer);
 	}
 }
