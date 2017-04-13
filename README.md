@@ -10,11 +10,17 @@ a valid Polopoly Support Account.'), extends them and creates a fluent API for i
 
 ## Changelog
 
-### Release 0.4
+### Release 1.0
 
-* Add branches for Polopoly 10.8 and 10.14, so there are two artifacts available:
+* Versions for Polopoly 10.8 and 10.14 available:
   * [ ![Download](https://api.bintray.com/packages/paulwellnerbou/maven/polopoly-policy-mock/images/download.svg?version=polopoly10.14-0.4) ](https://bintray.com/paulwellnerbou/maven/polopoly-policy-mock/polopoly10.14-0.4)
   * [ ![Download](https://api.bintray.com/packages/paulwellnerbou/maven/polopoly-policy-mock/images/download.svg?version=polopoly10.8-0.4) ](https://bintray.com/paulwellnerbou/maven/polopoly-policy-mock/polopoly10.8-0.4)
+* Some significant fixes in the mocked content setup regarding external IDs, content lists, and others.
+* Switching bintray organisation to allow some others to release fixes of this library
+
+### Release 0.4
+
+* Add branches for Polopoly 10.8 and 10.14, so there are two artifacts available
 * Add `withExternalContentId(...)` to allow external ContentIDs for mocked policies
 * Added mocked behavior for `getAvailableContentListNames()` (thanks to Fabian Oehlmann)
 * Support for Polopoly 10.6 discontinued
@@ -22,12 +28,12 @@ a valid Polopoly Support Account.'), extends them and creates a fluent API for i
 ### Release 0.3
 
 * Add branches for Polopoly 10.6 and 10.14, so there are two artifacts available:
-  * [ ![Download](https://api.bintray.com/packages/paulwellnerbou/maven/polopoly-policy-mock/images/download.svg?version=polopoly10.14-0.3) ](https://bintray.com/paulwellnerbou/maven/polopoly-policy-mock/polopoly10.6-0.3)
-  * [ ![Download](https://api.bintray.com/packages/paulwellnerbou/maven/polopoly-policy-mock/images/download.svg?version=polopoly10.6-0.3) ](https://bintray.com/paulwellnerbou/maven/polopoly-policy-mock/polopoly10.6-0.3)
+  * [ ![Download](https://api.bintray.com/packages/wellnerbou-polopoly/maven/polopoly-policy-mock/images/download.svg?version=polopoly10.14-0.3) ](https://bintray.com/wellnerbou-polopoly/maven/polopoly-policy-mock/polopoly10.6-0.3)
+  * [ ![Download](https://api.bintray.com/packages/wellnerbou-polopoly/maven/polopoly-policy-mock/images/download.svg?version=polopoly10.6-0.3) ](https://bintray.com/wellnerbou-polopoly/maven/polopoly-policy-mock/polopoly10.6-0.3)
 * Type MockPolicyBuilder with Generics, so casting is not necessary any more.
 * Add fluent API to MockPolicyBuilder to add slots
 * Add usage examples in MockPolicyBuilderTest
-* This library is now available on [bintray](https://bintray.com/paulwellnerbou/maven/polopoly-policy-mock)
+* This library is now available on [bintray](https://bintray.com/wellnerbou-polopoly/maven/polopoly-policy-mock)
 
 ## Basic usage
 
@@ -35,7 +41,7 @@ a valid Polopoly Support Account.'), extends them and creates a fluent API for i
 
 	repositories {
 		maven {
-			url  "http://dl.bintray.com/paulwellnerbou/maven"
+			url  "http://dl.bintray.com/wellnerbou-polopoly/maven"
 		}
 	}
 
@@ -47,7 +53,7 @@ Add this to your repositories (or include it in your own nexus/artifactory):
 		<repository>
 			<id>bintray-paulwellnerbou-maven</id>
 			<name>bintray</name>
-			<url>http://dl.bintray.com/paulwellnerbou/maven</url>
+			<url>http://dl.bintray.com/wellnerbou-polopoly/maven</url>
 		</repository>
 	</repositories>
 
