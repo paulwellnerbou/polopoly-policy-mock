@@ -27,8 +27,7 @@ a valid Polopoly Support Account.'), extends them and creates a fluent API for i
 
 ### Release 0.3
 
-* Add branches for Polopoly 10.6 and 10.14, so there are two artifacts available:
-  * [ ![Download](https://api.bintray.com/packages/wellnerbou-polopoly/maven/polopoly-policy-mock/images/download.svg?version=polopoly10.14-0.3) ](https://bintray.com/wellnerbou-polopoly/maven/polopoly-policy-mock/polopoly10.6-0.3)
+* Add branches for Polopoly 10.6 and 10.14, so there are two artifacts available. Since 10.6 is discontinued, you can stil grab it here:
   * [ ![Download](https://api.bintray.com/packages/wellnerbou-polopoly/maven/polopoly-policy-mock/images/download.svg?version=polopoly10.6-0.3) ](https://bintray.com/wellnerbou-polopoly/maven/polopoly-policy-mock/polopoly10.6-0.3)
 * Type MockPolicyBuilder with Generics, so casting is not necessary any more.
 * Add fluent API to MockPolicyBuilder to add slots
