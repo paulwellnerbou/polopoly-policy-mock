@@ -230,6 +230,9 @@ public class MockPolicyBuilder<T extends Policy> {
 					when(content.getContentList()).thenReturn(entry.getValue());
 				}
 				when(content.getContentList(entry.getKey())).thenReturn(entry.getValue());
+				for (int i = 0; i < entry.getValue().size(); i++) {
+					when(content.getContentReference(entry.getKey(), String.valueOf(i))).thenReturn(entry.getValue().getEntry(i).getReferredContentId());
+				}
 			}
 			when(content.getAvailableContentListNames()).thenReturn(contentLists.keySet().toArray(new String[contentLists.keySet().size()]));
 			mockComponentNames(components, content);

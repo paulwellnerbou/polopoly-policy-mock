@@ -1,5 +1,7 @@
 package de.wellnerbou.polopoly.test;
 
+import com.polopoly.cm.ContentId;
+import com.polopoly.cm.ContentIdFactory;
 import com.polopoly.cm.client.CMException;
 import com.polopoly.cm.collections.ContentList;
 import com.polopoly.cm.policy.ArticlePolicy;
@@ -93,6 +95,19 @@ public class MockPolicyBuilderTest {
 				.build();
 
 		assertThat(policyImplBase.getAvailableContentListNames()).contains(defaultContentListName, someContentListName);
+	}
+
+	@Test
+	public void testGetContentListAndGetReference() throws CMException {
+		String contentListName = "myContentList";
+		final ContentId contentId = ContentIdFactory.createContentId("7.123");
+		final ContentPolicy policyImplBase = new MockPolicyBuilder<>(ContentPolicy.class, policyCMServer)
+				.withContentList(contentListName, contentId)
+				.build();
+
+		assertThat(policyImplBase.getContentList(contentListName).size()).isEqualTo(1);
+		assertThat(policyImplBase.getContentList(contentListName).getEntry(0).getReferredContentId()).isEqualTo(contentId);
+		assertThat(policyImplBase.getContentReference(contentListName, "0")).isEqualTo(contentId);
 	}
 
 	@Test
