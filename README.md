@@ -12,7 +12,8 @@ a valid Polopoly Support Account.'), extends them and creates a fluent API for i
 
 ### Release 1.0
 
-* Versions for Polopoly 10.8 and 10.14 available:
+* Versions for Polopoly 10.16, 10.14 and 10.8 available:
+  * [ ![Download](https://api.bintray.com/packages/wellnerbou-polopoly/maven/polopoly-policy-mock/images/download.svg?version=polopoly10.16-1.0) ](https://bintray.com/wellnerbou-polopoly/maven/polopoly-policy-mock/polopoly10.16-1.0)
   * [ ![Download](https://api.bintray.com/packages/wellnerbou-polopoly/maven/polopoly-policy-mock/images/download.svg?version=polopoly10.14-1.0) ](https://bintray.com/wellnerbou-polopoly/maven/polopoly-policy-mock/polopoly10.14-1.0)
   * [ ![Download](https://api.bintray.com/packages/wellnerbou-polopoly/maven/polopoly-policy-mock/images/download.svg?version=polopoly10.8-1.0) ](https://bintray.com/wellnerbou-polopoly/maven/polopoly-policy-mock/polopoly10.8-1.0)
 * Some significant fixes in the mocked content setup regarding external IDs, content lists, and others.
