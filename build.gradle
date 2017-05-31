@@ -17,7 +17,7 @@ apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
 group = "de.wellnerbou"
-version = "polopoly10.8-1.0"
+version = "polopoly10.16-3.3"
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.7'
@@ -38,8 +38,8 @@ if (!project.hasProperty("bintrayOrganisation")) {
     ext.bintrayOrganisation = 'wellnerbou-polopoly'
 }
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
     mavenLocal()
@@ -113,8 +113,8 @@ configure(allprojects) {
 dependencies {
     testCompile 'org.assertj:assertj-core:2.6.0'
     compile 'com.google.guava:guava:19.0'
-    provided("com.polopoly:polopoly:10.8.1-fp10:api")
-    provided("com.polopoly:polopoly:10.8.1-fp10")
-    provided("com.polopoly:legacy-site-plugin:10.8.1-fp10")
+    provided("com.polopoly:polopoly:10.16.3-fp3:api")
+    provided("com.polopoly:polopoly:10.16.3-fp3")
+    provided("com.polopoly:legacy-site-plugin:10.16.3-fp3")
     provided("org.mockito:mockito-all:1.10.17")
 }
