@@ -113,8 +113,8 @@ configure(allprojects) {
 dependencies {
     testCompile 'org.assertj:assertj-core:2.6.0'
     compile 'com.google.guava:guava:19.0'
-    provided("com.polopoly:polopoly:10.16.3-fp3:api")
-    provided("com.polopoly:polopoly:10.16.3-fp3")
+    provided("com.polopoly:polopoly:10.16.4:api")
+    provided("com.polopoly:polopoly:10.16.4")
     provided("com.polopoly:legacy-site-plugin:10.16.3-fp3")
     provided("org.mockito:mockito-all:1.10.17")
 }
