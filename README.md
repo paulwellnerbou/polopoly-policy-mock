@@ -10,6 +10,14 @@ a valid Polopoly Support Account.'), extends them and creates a fluent API for i
 
 ## Changelog
 
+### Release 1.1
+
+* Version for Polopoly 10.16 available:
+  * [ ![Download](https://api.bintray.com/packages/wellnerbou-polopoly/maven/polopoly-policy-mock/images/download.svg?version=polopoly10.16.5-1.1) ](https://bintray.com/wellnerbou-polopoly/maven/polopoly-policy-mock/polopoly10.16.5-1.0)
+* Upgrade Polopoly Dependency to 10.16.5-fp1
+* Upgrade Gradle to latest 4.9
+* Add basic functionality to create several versions of the same policy
+
 ### Release 1.0
 
 * Versions for Polopoly 10.16 and 10.8 available:
@@ -94,12 +102,24 @@ Assuming the input template of the model of the policy, we are working with, has
 
 If the policy you want to mock does not have a public default constructor you can use the InstanceCreator interface.
 
-    YourArticlePolicy articlePolicy = new MockPolicyBuilder<>(new InstanceCreator<YourArticlePolicy>() {
-            @Override
-            public YourArticlePolicy instantiate() {
-                return new YourArticlePolicy(parameterYouNeedForInstantiation);
-            }
-        }, policyCMServer).build();
+    YourArticlePolicy articlePolicy = new MockPolicyBuilder<>(() -> new YourArticlePolicy(parameterYouNeedForInstantiation), policyCMServer).build();
+
+### Creating another version of an existing (mocked) policy
+
+This feature is still very basic. You need to repeat the whole building commands, just call another build method. See the unit test
+`MockPolicyBuilderTest#testCreateNewVersionOfPolicy` for details.
+
+```java
+		final ContentPolicy contentPolicyPreviousVersion = new MockPolicyBuilder<>(ContentPolicy.class, policyCMServer)
+				.withNameChildPolicy("Name")
+				.build();
+		final ContentPolicy contentPolicyLatestVersion = new MockPolicyBuilder<>(ContentPolicy.class, policyCMServer)
+				.withNameChildPolicy("New Name")
+				.buildNewVersionFor(contentPolicyPreviousVersion);
+```
+
+Existing child policies or eve the input template are not taken automatically in the new version. The content ID and version including the correct
+mocking of `Policy#getVersionInf()` and return values of `PolicyCmServer` are detected automatically.
 
 ## Building this project
 
@@ -109,6 +129,10 @@ You will need the polopoly jar from Atex' public maven repositories, so you have
     polopolyRepoPassword=<YOUR POLOPOLY SUPPORT PASSWORD>
 
 After that, you can run <code>./gradlew build</code> to build the project.
+
+## Release and deploy to bintray
+
+    ./gradlew clean build assemble release -PpublishUser=<USER> -PpublishKey=<KEY>
 
 ## Deploying artifact in your own maven repository (nexus, for example)
 

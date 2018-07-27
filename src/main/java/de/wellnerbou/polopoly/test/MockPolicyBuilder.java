@@ -1,10 +1,9 @@
 package de.wellnerbou.polopoly.test;
 
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.polopoly.cm.ContentId;
 import com.polopoly.cm.ExternalContentId;
+import com.polopoly.cm.VersionInfo;
 import com.polopoly.cm.VersionedContentId;
 import com.polopoly.cm.app.policy.ContentListWrapperPolicy;
 import com.polopoly.cm.app.policy.SelectPolicy;
@@ -13,6 +12,7 @@ import com.polopoly.cm.app.policy.SingleValuePolicy;
 import com.polopoly.cm.client.CMException;
 import com.polopoly.cm.client.Content;
 import com.polopoly.cm.client.InputTemplate;
+import com.polopoly.cm.client.impl.VersionInfoImpl;
 import com.polopoly.cm.collections.ContentList;
 import com.polopoly.cm.collections.ContentListSimple;
 import com.polopoly.cm.collections.ContentListUtil;
@@ -20,7 +20,7 @@ import com.polopoly.cm.policy.ContentPolicy;
 import com.polopoly.cm.policy.Policy;
 import com.polopoly.cm.policy.PolicyCMServer;
 import com.polopoly.siteengine.layout.slot.SlotPolicy;
-import org.mockito.invocation.InvocationOnMock;
+import com.polopoly.user.server.UserId;
 import org.mockito.stubbing.Answer;
 
 import java.math.BigDecimal;
@@ -110,6 +110,7 @@ public class MockPolicyBuilder<T extends Policy> {
 
 	/**
 	 * This is the internal name used to initialize the policy, not the name retrieved by {@link ContentPolicy#getName()} of {@link ContentPolicy}.
+	 *
 	 * @param name
 	 * @return MockPolicyBuilder
 	 */
@@ -153,12 +154,7 @@ public class MockPolicyBuilder<T extends Policy> {
 	}
 
 	public MockPolicyBuilder<T> withSlot(final String slotName, final InstanceCreator<? extends SlotPolicy> policyInstanceCreator, final Policy... contentListContents) {
-		return withSlot(slotName, policyInstanceCreator, FluentIterable.from(Arrays.asList(contentListContents)).transform(new Function<Policy, ContentId>() {
-			@Override
-			public ContentId apply(final Policy input) {
-				return input.getContentId();
-			}
-		}).toArray(ContentId.class));
+		return withSlot(slotName, policyInstanceCreator, Arrays.asList(contentListContents).stream().map(input -> input.getContentId()).toArray(ContentId[]::new));
 	}
 
 	public MockPolicyBuilder<T> withSingleValuedChildPolicyValue(final String childPolicyName, final String childPolicyValue, final InstanceCreator<? extends SingleValuePolicy> childPolicyInstanceCreator) {
@@ -168,7 +164,9 @@ public class MockPolicyBuilder<T extends Policy> {
 	public MockPolicyBuilder<T> withSingleValuedChildPolicyValue(final String childPolicyName, final String childPolicyValue, final String childPolicyInputTemplateExternalId, final InstanceCreator<? extends SingleValuePolicy> childPolicyInstanceCreator) {
 		final Content childPolicyContent = ContentFactory.createContentMock();
 		final InputTemplate inputTemplate = InputTemplateFactory.createInputTemplateMock(childPolicyName, childPolicyInputTemplateExternalId);
-		final Policy childPolicy = new MockPolicyBuilder<>(childPolicyInstanceCreator, policyCmServer).withMajor(CHILD_POLICY_MAJOR).withContent(childPolicyContent).withInputTemplate(inputTemplate).withInternalPolicyName(childPolicyName).build();
+		final Policy childPolicy = new MockPolicyBuilder<>(childPolicyInstanceCreator, policyCmServer)
+				.withMajor(CHILD_POLICY_MAJOR).withContent(childPolicyContent)
+				.withInputTemplate(inputTemplate).withInternalPolicyName(childPolicyName).build();
 		try {
 			when(childPolicyContent.getComponent(childPolicyName, getChildPolicyValueModelPath(childPolicy))).thenReturn(childPolicyValue);
 		} catch (CMException e) {
@@ -178,7 +176,9 @@ public class MockPolicyBuilder<T extends Policy> {
 	}
 
 	public MockPolicyBuilder<T> withNameChildPolicy(final String name) {
-		return this.withComponent("polopoly.Content", "name", name).withSingleValuedChildPolicyValue(POLICY_NAME_OF_NAME_CHILD_POLICY, name, "p.ContentName", new InstanceFromClassCreator<>(SingleValuePolicy.class));
+		return this.withComponent("polopoly.Content", "name", name)
+				.withSingleValuedChildPolicyValue(POLICY_NAME_OF_NAME_CHILD_POLICY, name, "p.ContentName",
+						new InstanceFromClassCreator<>(SingleValuePolicy.class));
 	}
 
 	public MockPolicyBuilder<T> withComponent(final String componentGroupName, final String componentName, final String componentValue) {
@@ -204,62 +204,126 @@ public class MockPolicyBuilder<T extends Policy> {
 	}
 
 	public T build() {
-		final VersionedContentId versionedContentId = new VersionedContentId(major, minor, new BigDecimal(System.currentTimeMillis() / 1000).intValueExact());
+		final VersionedContentId versionedContentId = new VersionedContentId(major, minor, getTimestamp());
 		return build(versionedContentId);
 	}
 
 	public T build(int major, int minor) {
-		final VersionedContentId versionedContentId = new VersionedContentId(major, minor, new BigDecimal(System.currentTimeMillis() / 1000).intValueExact());
+		final VersionedContentId versionedContentId = new VersionedContentId(major, minor, getTimestamp());
 		return build(versionedContentId);
 	}
 
+	private int getTimestamp() {
+		return new BigDecimal(System.currentTimeMillis() / 1000).intValueExact();
+	}
+
 	public T build(VersionedContentId versionedContentId) {
+		try {
+			T policy = internalBuildWithoutMockigCmServer(versionedContentId);
+			persistInMockedCmServer(policy, content);
+			return policy;
+		} catch (CMException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public T buildNewVersionFor(T currentVersionOfPolicy) {
+		final VersionedContentId currentVersionedContentId = currentVersionOfPolicy.getContentId();
+		int version = getTimestamp();
+		if(currentVersionedContentId.getVersion() >= version) {
+			version++;
+		}
+		final VersionedContentId newVersionedContentId = new VersionedContentId(currentVersionedContentId.getMajor(), currentVersionedContentId.getMinor(), version);
+		return build(newVersionedContentId);
+	}
+
+	private T internalBuildWithoutMockigCmServer(final VersionedContentId versionedContentId) throws CMException {
 		when(content.getContentId()).thenReturn(versionedContentId);
 		when(content.getSecurityParentId()).thenReturn(parentContentId);
 		InputTemplate inputTemplate = getInputTemplate();
 
 		T policy = spy(instanceCreator.instantiate());
-		try {
-			when(content.getName()).thenReturn(this.policyName);
-			if(externalContentIdString != null) {
-				final ExternalContentId externalContentId = new ExternalContentId(versionedContentId.getMajor(), versionedContentId.getMinor(), versionedContentId.getVersion(), externalContentIdString);
-				when(content.getExternalId()).thenReturn(externalContentId);
-			}
-			for (Map.Entry<String, ContentList> entry : contentLists.entrySet()) {
-				if (entry.getKey().equals("default")) {
-					when(content.getContentList()).thenReturn(entry.getValue());
-				}
-				when(content.getContentList(entry.getKey())).thenReturn(entry.getValue());
-				for (int i = 0; i < entry.getValue().size(); i++) {
-					when(content.getContentReference(entry.getKey(), String.valueOf(i))).thenReturn(entry.getValue().getEntry(i).getReferredContentId());
-				}
-			}
-			when(content.getAvailableContentListNames()).thenReturn(contentLists.keySet().toArray(new String[contentLists.keySet().size()]));
-			mockComponentNames(components, content);
-
-			when(content.getName()).thenAnswer(new Answer<String>() {
-				@Override
-				public String answer(final InvocationOnMock invocation) throws Throwable {
-					return ((Content) invocation.getMock()).getComponent("polopoly.Content", "name");
-				}
-			});
-
-			initPolicy(policy, content, policyCmServer, inputTemplate);
-			for (Map.Entry<String, Policy> entry : childPolicies.entrySet()) {
-				final Policy childPolicy = entry.getValue();
-				doReturn(childPolicy).when(policy).getChildPolicy(entry.getKey());
-			}
-			doReturn(Lists.newArrayList(childPolicies.keySet())).when(policy).getChildPolicyNames();
-
-			persistInMockedCmServer(policy, content);
-		} catch (CMException e) {
-			throw new RuntimeException(e);
+		when(content.getName()).thenReturn(this.policyName);
+		if (externalContentIdString != null) {
+			final ExternalContentId externalContentId = new ExternalContentId(versionedContentId.getMajor(), versionedContentId.getMinor(), versionedContentId.getVersion(), externalContentIdString);
+			when(content.getExternalId()).thenReturn(externalContentId);
 		}
+		for (Map.Entry<String, ContentList> entry : contentLists.entrySet()) {
+			if (entry.getKey().equals("default")) {
+				when(content.getContentList()).thenReturn(entry.getValue());
+			}
+			when(content.getContentList(entry.getKey())).thenReturn(entry.getValue());
+			for (int i = 0; i < entry.getValue().size(); i++) {
+				when(content.getContentReference(entry.getKey(), String.valueOf(i))).thenReturn(entry.getValue().getEntry(i).getReferredContentId());
+			}
+		}
+		when(content.getAvailableContentListNames()).thenReturn(contentLists.keySet().toArray(new String[0]));
+		mockComponentNames(components, content);
+
+		when(content.getName()).thenAnswer((Answer<String>) invocation -> ((Content) invocation.getMock()).getComponent("polopoly.Content", "name"));
+
+		initPolicy(policy, content, policyCmServer, inputTemplate);
+		for (Map.Entry<String, Policy> entry : childPolicies.entrySet()) {
+			final Policy childPolicy = entry.getValue();
+			doReturn(childPolicy).when(policy).getChildPolicy(entry.getKey());
+		}
+		doReturn(Lists.newArrayList(childPolicies.keySet())).when(policy).getChildPolicyNames();
+
+		final VersionInfo versionInfo = createVersionInfo(versionedContentId);
+		when(content.getVersionInfo()).thenReturn(versionInfo);
+
+		persistInMockedCmServer(policy, content);
+		mockRemove(content);
 		return policy;
 	}
 
+	private void mockRemove(final Content content) throws CMException {
+		when(content.remove()).thenAnswer(invocationOnMock -> {
+			removeContentVersionFromCmServer(content.getContentId());
+
+			final ContentId unversionedContentId = content.getContentId().getContentId();
+			if(policyCmServer.contentExists(unversionedContentId)) {
+				final VersionInfo versionInfo = policyCmServer.getContent(unversionedContentId).getVersionInfo();
+				if(versionInfo.getVersion() == content.getContentId().getVersion()) {
+					if(versionInfo.getPreviousVersion() > 0) {
+						final Policy policy = policyCmServer.getPolicy(unversionedContentId);
+						persistInMockedCmServer(policy, policy.getContent());
+					} else {
+						removeContentVersionFromCmServer(unversionedContentId);
+					}
+				}
+			}
+
+			return new VersionedContentId[]{content.getContentId()};
+		});
+	}
+
+	private void removeContentVersionFromCmServer(final ContentId contentId) throws CMException {
+		when(policyCmServer.getPolicy(contentId)).thenThrow(new CMException("Policy " + contentId + " does not exist any more."));
+		when(policyCmServer.getContent(contentId)).thenThrow(new CMException("Content " + contentId + " does not exist any more."));
+		when(policyCmServer.contentExists(contentId)).thenReturn(false);
+	}
+
+	private VersionInfo createVersionInfo(final VersionedContentId versionedContentId) throws CMException {
+		final UserId sysadminUserId = sysadminUserId();
+		final VersionInfoImpl versionInfo = new VersionInfoImpl(versionedContentId.getVersion(), 0, getPreviousVersionIfExists(versionedContentId), System.currentTimeMillis(), sysadminUserId, sysadminUserId);
+		return versionInfo;
+	}
+
+	private int getPreviousVersionIfExists(final VersionedContentId versionedContentId) throws CMException {
+		if(policyCmServer.contentExists(versionedContentId.getContentId())) {
+			return policyCmServer.getContent(versionedContentId.getContentId()).getContentId().getVersion();
+		} else {
+			return 0;
+		}
+	}
+
+	private UserId sysadminUserId() {
+		return new UserId("98");
+	}
+
 	private InputTemplate getInputTemplate() {
-		if(this.inputTemplateInstance != null) {
+		if (this.inputTemplateInstance != null) {
 			return this.inputTemplateInstance;
 		} else {
 			return InputTemplateFactory.createInputTemplateMock(this.policyName, this.inputTemplateExternalId);
@@ -273,17 +337,17 @@ public class MockPolicyBuilder<T extends Policy> {
 			when(content.getComponent(entry.getKey().componentGroupName, entry.getKey().componentName)).thenReturn(entry.getValue());
 			when(content.getComponentNames(entry.getKey().componentGroupName)).thenReturn(getAllComponentNamesForGroup(entry.getKey().componentGroupName, components));
 		}
-		when(content.getComponentGroupNames()).thenReturn(componentGroupNames.toArray(new String[componentGroupNames.size()]));
+		when(content.getComponentGroupNames()).thenReturn(componentGroupNames.toArray(new String[0]));
 	}
 
 	private String[] getAllComponentNamesForGroup(final String componentGroupName, final Map<ComponentIdentifier, String> components) {
 		final ArrayList<String> componentNames = new ArrayList<>();
 		for (Map.Entry<ComponentIdentifier, String> entry : components.entrySet()) {
-			if(entry.getKey().componentGroupName.equals(componentGroupName)) {
+			if (entry.getKey().componentGroupName.equals(componentGroupName)) {
 				componentNames.add(entry.getKey().componentName);
 			}
 		}
-		return componentNames.toArray(new String[componentNames.size()]);
+		return componentNames.toArray(new String[0]);
 	}
 
 	private void persistInMockedCmServer(Policy policy, Content content) throws CMException {
@@ -293,7 +357,7 @@ public class MockPolicyBuilder<T extends Policy> {
 		when(policyCmServer.getPolicy(policy.getContentId().getContentId())).thenReturn(policy);
 		when(policyCmServer.getContent(policy.getContentId())).thenReturn(content);
 		when(policyCmServer.getContent(policy.getContentId().getContentId())).thenReturn(content);
-		if(content.getExternalId() != null) {
+		if (content.getExternalId() != null) {
 			when(policyCmServer.getPolicy(content.getExternalId())).thenReturn(policy);
 			when(policyCmServer.getContent(content.getExternalId())).thenReturn(content);
 			final ExternalContentId externalContentIdWithoutVersion = new ExternalContentId(content.getExternalId().getExternalId());
@@ -307,6 +371,6 @@ public class MockPolicyBuilder<T extends Policy> {
 		if (inputTemplate.getExternalId() == null) {
 			when(inputTemplate.getExternalId()).thenReturn(new ExternalContentId("de.wellnerbou.defaultInputTemplateName"));
 		}
-		policy.init(policyName, new Content[] { content }, inputTemplate, null, policyCMServer);
+		policy.init(policyName, new Content[]{content}, inputTemplate, null, policyCMServer);
 	}
 }

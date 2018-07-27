@@ -1,15 +1,6 @@
-// See https://github.com/spring-projects/gradle-plugins/tree/master/propdeps-plugin
-buildscript {
-    repositories {
-        maven { url 'http://repo.spring.io/plugins-release' }
-    }
-    dependencies {
-        classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
-    }
-}
-
 plugins {
-    id "com.jfrog.bintray" version "1.2"
+    id "com.jfrog.bintray" version "1.8.4"
+    id 'net.researchgate.release' version '2.6.0'
 }
 
 apply plugin: 'java'
@@ -17,11 +8,6 @@ apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
 group = "de.wellnerbou"
-version = "polopoly10.16.5-1.0"
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.7'
-}
 
 // user and key configuration for bintray deployment:
 // ./gradlew bintrayUpload -PpublishUser=<USER> -PpublishKey=<KEY>
@@ -40,6 +26,8 @@ if (!project.hasProperty("bintrayOrganisation")) {
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+
+afterReleaseBuild.dependsOn bintrayUpload
 
 repositories {
     mavenLocal()
@@ -103,20 +91,17 @@ bintray {
     }
 }
 
-configure(allprojects) {
-    apply plugin: 'propdeps'
-    apply plugin: 'propdeps-maven'
-    apply plugin: 'propdeps-idea'
-    apply plugin: 'propdeps-eclipse'
-}
-
 dependencies {
-    def polopolyVersion = '10.16.5'
-    testCompile 'org.assertj:assertj-core:2.6.0'
-    compile 'com.google.guava:guava:19.0'
+    def polopolyVersion = '10.16.5-fp1'
 
-    provided("com.polopoly:polopoly:${polopolyVersion}:api")
-    provided("com.polopoly:polopoly:${polopolyVersion}")
-    provided("com.polopoly:legacy-site-plugin:${polopolyVersion}")
-    provided("org.mockito:mockito-all:1.10.17")
+    compileOnly("com.polopoly:polopoly:${polopolyVersion}:api")
+    compileOnly("com.polopoly:polopoly:${polopolyVersion}")
+    compileOnly("com.polopoly:legacy-site-plugin:${polopolyVersion}")
+    compileOnly("org.mockito:mockito-all:1.10.17")
+
+    testCompile 'org.assertj:assertj-core:3.10.0'
+    testImplementation("com.polopoly:polopoly:${polopolyVersion}:api")
+    testImplementation("com.polopoly:polopoly:${polopolyVersion}")
+    testImplementation("com.polopoly:legacy-site-plugin:${polopolyVersion}")
+    testImplementation("org.mockito:mockito-all:1.10.17")
 }

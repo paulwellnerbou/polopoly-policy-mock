@@ -31,7 +31,7 @@ public class MockPolicyBuilderTest {
 	public void testAutomaticMinorVersionCreation() {
 		final PolicyImplBase policyImplBase1 = new MockPolicyBuilder<>(PolicyImplBase.class, policyCMServer).withMajor(1).build();
 		final PolicyImplBase policyImplBase2 = new MockPolicyBuilder<>(PolicyImplBase.class, policyCMServer).withMajor(1).build();
-		assertThat(policyImplBase1.getContentId().getMinor() == policyImplBase2.getContentId().getMinor() - 1);
+		assertThat(policyImplBase1.getContentId().getMinor()).isEqualTo(policyImplBase2.getContentId().getMinor() - 1);
 	}
 
 	@Test
@@ -59,12 +59,7 @@ public class MockPolicyBuilderTest {
 
 	@Test
 	public void createPolicyWithCustomInstantiator() {
-		YourArticlePolicy articlePolicy = new MockPolicyBuilder<>(new InstanceCreator<YourArticlePolicy>() {
-			@Override
-			public YourArticlePolicy instantiate() {
-				return new YourArticlePolicy(true);
-			}
-		}, policyCMServer).build();
+		YourArticlePolicy articlePolicy = new MockPolicyBuilder<>(() -> new YourArticlePolicy(true), policyCMServer).build();
 		assertThat(articlePolicy.isConstructorParameterForTest()).isTrue();
 	}
 
@@ -117,7 +112,7 @@ public class MockPolicyBuilderTest {
 				.build();
 		final String name = contentPolicy.getName();
 
-		assertThat(name.equals("Name"));
+		assertThat(name).isEqualTo("Name");
 	}
 
 	@Test
@@ -127,17 +122,37 @@ public class MockPolicyBuilderTest {
 				.build();
 		final String name = contentPolicy.getName();
 
-		assertThat(name.equals("Name"));
+		assertThat(name).isEqualTo("Name");
+	}
+
+	@Test
+	public void testCreateNewVersionOfPolicy() throws CMException {
+		final ContentPolicy contentPolicyPreviousVersion = new MockPolicyBuilder<>(ContentPolicy.class, policyCMServer)
+				.withNameChildPolicy("Name")
+				.build();
+		final ContentPolicy contentPolicyLatestVersion = new MockPolicyBuilder<>(ContentPolicy.class, policyCMServer)
+				.withNameChildPolicy("New Name")
+				.buildNewVersionFor(contentPolicyPreviousVersion);
+
+		assertThat(contentPolicyPreviousVersion.getContentId()).isNotEqualTo(contentPolicyLatestVersion.getContentId());
+		assertThat(contentPolicyPreviousVersion.getContentId().getContentId()).isEqualTo(contentPolicyLatestVersion.getContentId().getContentId());
+
+		assertThat(policyCMServer.getPolicy(contentPolicyPreviousVersion.getContentId())).isEqualTo(contentPolicyPreviousVersion);
+		assertThat(policyCMServer.getPolicy(contentPolicyPreviousVersion.getContentId().getContentId())).isEqualTo(contentPolicyLatestVersion);
+		assertThat(policyCMServer.getPolicy(contentPolicyLatestVersion.getContentId())).isEqualTo(contentPolicyLatestVersion);
+		assertThat(policyCMServer.getPolicy(contentPolicyLatestVersion.getContentId().getContentId())).isEqualTo(contentPolicyLatestVersion);
+
+		assertThat(contentPolicyLatestVersion.getVersionInfo().getPreviousVersion()).isEqualTo(contentPolicyPreviousVersion.getContentId().getVersion());
 	}
 
 	private class YourArticlePolicy extends PolicyImplBase {
 		private boolean constructorParameterForTest;
 
-		public YourArticlePolicy(boolean constructorParameterForTest) {
+		YourArticlePolicy(boolean constructorParameterForTest) {
 			this.constructorParameterForTest = constructorParameterForTest;
 		}
 
-		public boolean isConstructorParameterForTest() {
+		boolean isConstructorParameterForTest() {
 			return constructorParameterForTest;
 		}
 	}
