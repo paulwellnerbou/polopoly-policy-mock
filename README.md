@@ -13,7 +13,7 @@ a valid Polopoly Support Account.'), extends them and creates a fluent API for i
 ### Release 1.1
 
 * Version for Polopoly 10.16 available:
-  * [ ![Download](https://api.bintray.com/packages/wellnerbou-polopoly/maven/polopoly-policy-mock/images/download.svg?version=polopoly10.16.5-1.1) ](https://bintray.com/wellnerbou-polopoly/maven/polopoly-policy-mock/polopoly10.16.5-1.0)
+  * [ ![Download](https://api.bintray.com/packages/wellnerbou-polopoly/maven/polopoly-policy-mock/images/download.svg?version=polopoly10.16.5-1.1) ](https://bintray.com/wellnerbou-polopoly/maven/polopoly-policy-mock/polopoly10.16.5-1.1)
 * Upgrade Polopoly Dependency to 10.16.5-fp1
 * Upgrade Gradle to latest 4.9
 * Add basic functionality to create several versions of the same policy
