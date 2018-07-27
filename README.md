@@ -132,7 +132,7 @@ After that, you can run <code>./gradlew build</code> to build the project.
 
 ## Release and deploy to bintray
 
-    ./gradlew clean build assemble release -PpublishUser=<USER> -PpublishKey=<KEY>
+    ./gradlew clean assemble release -Prelease.useAutomaticVersion=true -PpublishUser=<USER> -PpublishKey=<KEY>
 
 ## Deploying artifact in your own maven repository (nexus, for example)
 
