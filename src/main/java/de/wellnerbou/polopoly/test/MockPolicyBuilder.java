@@ -61,6 +61,7 @@ public class MockPolicyBuilder<T extends Policy> {
 	private Map<ComponentIdentifier, String> components = new HashMap<>();
 	private String externalContentIdString;
 	private InputTemplate inputTemplateInstance;
+	private boolean committed = false;
 
 	private class ComponentIdentifier {
 		String componentGroupName;
@@ -203,6 +204,11 @@ public class MockPolicyBuilder<T extends Policy> {
 		return withSingleValuedChildPolicyValue(childPolicyName, childPolicyValue, new InstanceFromClassCreator(childPolicyClass));
 	}
 
+	public MockPolicyBuilder<T> withCommittedVersion() {
+		this.committed = true;
+		return this;
+	}
+
 	public T build() {
 		final VersionedContentId versionedContentId = new VersionedContentId(major, minor, getTimestamp());
 		return build(versionedContentId);
@@ -269,7 +275,7 @@ public class MockPolicyBuilder<T extends Policy> {
 		}
 		doReturn(Lists.newArrayList(childPolicies.keySet())).when(policy).getChildPolicyNames();
 
-		final VersionInfo versionInfo = createVersionInfo(versionedContentId);
+		final VersionInfo versionInfo = createVersionInfo(versionedContentId, committed ? System.currentTimeMillis() : -1L);
 		when(content.getVersionInfo()).thenReturn(versionInfo);
 
 		persistInMockedCmServer(policy, content);
@@ -304,9 +310,11 @@ public class MockPolicyBuilder<T extends Policy> {
 		when(policyCmServer.contentExists(contentId)).thenReturn(false);
 	}
 
-	private VersionInfo createVersionInfo(final VersionedContentId versionedContentId) throws CMException {
+	private VersionInfo createVersionInfo(final VersionedContentId versionedContentId, final long committed) throws CMException {
 		final UserId sysadminUserId = sysadminUserId();
-		final VersionInfoImpl versionInfo = new VersionInfoImpl(versionedContentId.getVersion(), 0, getPreviousVersionIfExists(versionedContentId), System.currentTimeMillis(), sysadminUserId, sysadminUserId);
+		final VersionInfoImpl versionInfo = new VersionInfoImpl(versionedContentId.getVersion(),
+				0, getPreviousVersionIfExists(versionedContentId),
+				committed, sysadminUserId, sysadminUserId);
 		return versionInfo;
 	}
 
@@ -314,7 +322,7 @@ public class MockPolicyBuilder<T extends Policy> {
 		if(policyCmServer.contentExists(versionedContentId.getContentId())) {
 			return policyCmServer.getContent(versionedContentId.getContentId()).getContentId().getVersion();
 		} else {
-			return 0;
+			return -1;
 		}
 	}
 

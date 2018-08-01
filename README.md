@@ -10,6 +10,10 @@ a valid Polopoly Support Account.'), extends them and creates a fluent API for i
 
 ## Changelog
 
+### Release 1.2
+
+* Fixes to maintain backwards compatibility (gerVersionInfo() remains uncomitted)
+
 ### Release 1.1
 
 * Version for Polopoly 10.16 available:
