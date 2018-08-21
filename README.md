@@ -4,11 +4,15 @@ polopoly-policy-mock
 Utilities to mock Atex' Polopoly's Policy classes using the data model objects the policy classes rely on.
 Basically it relies on the concepts and code examples explained on
 [Polopoly's Guide on Writing Tests](http://support.polopoly.com/doc/jar/10.6.1/dev-guide/testing.html) (You'll need
-a valid Polopoly Support Account.'), extends them and creates a fluent API for it.
+a valid Polopoly Support Account'), extends them and creates a fluent API for it.
 
 *Any issues? Need more features for your policies? [Create an issue](https://github.com/paulwellnerbou/polopoly-policy-mock/issues), or drop me a line.*
 
 ## Changelog
+
+### Release 1.3
+
+* Update to new fixpack: 10.16.5-fp2
 
 ### Release 1.2
 

@@ -92,7 +92,7 @@ bintray {
 }
 
 dependencies {
-    def polopolyVersion = '10.16.5-fp1'
+    def polopolyVersion = '10.16.5-fp2'
 
     compileOnly("com.polopoly:polopoly:${polopolyVersion}:api")
     compileOnly("com.polopoly:polopoly:${polopolyVersion}")
